@@ -1,7 +1,7 @@
-# Implementation of Adjoint Logic
+# Implementation of Intuitionistic Linear Logic
 
-This is an implementation of Nick Benton's term assignement to his Adjoint Logic (formally LNL logic).  See the following reference for the logical definition:
+This is an implementation of a term assignement to intuitionistic linear logic (ILL).  See the following reference for the logical definition:
 
-http://research.microsoft.com/en-us/um/people/nick/mixed3.ps
+https://www.dpmms.cam.ac.uk/~martin/Research/Pub91-00/bbdph92.pdf
 
-The biggest goal of this project is to make this implementation as modular as possible to allow for easy modifications in the future.
+The biggest goal of this project is to make this implementation as modular as possible to allow for easy extensions/modifications in the future.

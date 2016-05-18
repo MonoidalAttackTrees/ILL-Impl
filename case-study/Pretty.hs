@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 ------------------------------------------------------------------------
 -- This file implements the RecCalc pretty printers.                 --
 --                                                                    --

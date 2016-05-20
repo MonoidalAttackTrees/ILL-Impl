@@ -11,4 +11,7 @@ Q: Differences in Haskell between “data ____ = … ” and “type ____ = … 
 A: data would correspond to a data type, while type is more of an alias
 
 Q: In Syntax.hs, “type TmName = Name Term” – is Name a type defined in Unbound?
+A: Yes, got clarification from prof
+
+Q: Fresh m => ...
 A: ?

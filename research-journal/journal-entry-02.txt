@@ -1,0 +1,10 @@
+Week of 23 May 2016
+Research Journal Entry #2
+
+Researcher neglected to record reading material for previous week. Researcher reviewed and continues to review CSCI 3300: Programming Language Concepts notes, "Programming Language Foundations" by Dr. Aaron Stump, and <insert Category Theory book here>.
+
+FO(Z), untyped lambda calculus, and introduction to category theory have been reviewed. Broader elements of Programming Langauge Theory have been researched.
+
+Work on the case-study has not progressed beyond experimenting with Syntax.hs (constructing functions, application of functions, recursion, etc). Progress in Pretty.hs will be the first goal this week.
+
+Administrative Notes: Spoke with Crystal Vincent regarding TimeNet and time/labor. TL system is lacking and does not accomodate remote access neatly. Will have to maintain .xlsx Excel document in repository as record of hours worked, although researcher will be "clocking in" on TimeNet.

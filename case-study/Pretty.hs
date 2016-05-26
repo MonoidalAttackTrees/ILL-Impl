@@ -21,7 +21,11 @@ import Parser
 -- prettyType converts a type into a string.                          --
 ------------------------------------------------------------------------
 prettyType :: Fresh m => Type -> m String
-prettyType = undefined
+prettyType Nat = return "Nat"
+prettyType (Arr x y) = do
+	xty <- prettyType x
+	yty <- prettyType y
+	return $ xty ++ " -> " ++ yty
 
 ------------------------------------------------------------------------
 -- Some helpful testing functions.                                    --
@@ -39,7 +43,27 @@ testPrettyType = testPretty typeParser prettyType
 -- prettyTerm converts a term into a string.                          --
 ------------------------------------------------------------------------
 prettyTerm :: Fresh m => Term -> m String
-prettyTerm = undefined
+prettyTerm Zero = return "0"
+prettyTerm (Suc t) = do
+	s <- prettyTerm t
+	return $ "suc " ++ s ++ ""
+prettyTerm (Var name) = do
+	let var = n2s name
+	return var
+prettyTerm (App t1 t2) = do
+	tm1 <- prettyTerm t1
+	tm2 <- prettyTerm t2
+	return $ "app " ++ tm1 ++ " to " ++ tm2 ++ " "
+prettyTerm (Fun ty tm) = do
+	(n,tm') <- unbind tm 
+	str <- prettyTerm tm'
+	tystr <- prettyType ty
+	return $ "fun " ++ (n2s n) ++ " : " ++ tystr ++ " => (" ++ str ++ ")"
+prettyTerm (Rec t1 t2 t3) = do
+	tm1 <- prettyTerm t1
+	tm2 <- prettyTerm t2
+	tm3 <- prettyTerm t3
+	return $ "rec " ++ tm1 ++ "with " ++ tm2 ++ " || " ++ tm3 ++ " "
 
 ------------------------------------------------------------------------
 -- A helpful testing function, and a couple of funcations that make   --

@@ -44,7 +44,8 @@ parseCtx str =
 -- or throws an error.                                                 --
 -------------------------------------------------------------------------
 typeCheck :: Fresh m => Ctx -> Term -> ErrorT String m Type
-typeCheck = undefined
+typeCheck [] _ = undefined
+typeCheck ((nm, ty):ctx) tm = undefined
 
 -------------------------------------------------------------------------
 -- This function makes it easy to run the type checker.                --

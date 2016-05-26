@@ -8,3 +8,8 @@ FO(Z), untyped lambda calculus, and introduction to category theory have been re
 Work on the case-study has not progressed beyond experimenting with Syntax.hs (constructing functions, application of functions, recursion, etc). Progress in Pretty.hs will be the first goal this week.
 
 Administrative Notes: Spoke with Crystal Vincent regarding TimeNet and time/labor. TL system is lacking and does not accomodate remote access neatly. Will have to maintain .xlsx Excel document in repository as record of hours worked, although researcher will be "clocking in" on TimeNet.
+
+Update: Pretty.hs tentatively completed, will begin testing with Testing.hs module. Beginning work on TypeCheck.hs.
+
+Q: Need refresher on Either, Error
+A: 

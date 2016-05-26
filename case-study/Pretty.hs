@@ -63,7 +63,7 @@ prettyTerm (Rec t1 t2 t3) = do
 	tm1 <- prettyTerm t1
 	tm2 <- prettyTerm t2
 	tm3 <- prettyTerm t3
-	return $ "rec " ++ tm1 ++ "with " ++ tm2 ++ " || " ++ tm3 ++ " "
+	return $ "rec " ++ tm1 ++ " with " ++ tm2 ++ " || " ++ tm3 ++ " "
 
 ------------------------------------------------------------------------
 -- A helpful testing function, and a couple of funcations that make   --

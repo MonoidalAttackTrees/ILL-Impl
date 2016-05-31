@@ -1,0 +1,10 @@
+Week of 31 May 2016
+Research Journal Entry 03
+
+I learned that I had misunderstood the distinctions between type checking, type construction, and type inference. Besides the obvious differences in natural language, my approach to RecCalc's TypeCheck.hs was insufficient as I viewed typeCheck as a checker, not as a construction algorithm.
+
+An anticipated confusion has manifested: the types of Haskell versus the types of the PL I am implementing. Must be more clear and concise when thinking/talking about these types.
+
+
+Q: Question about parser in TypeCheck.hs, specifically function tmCtxParse and Parsec. Not necessary to complete project, just a curiosity.
+A: ?

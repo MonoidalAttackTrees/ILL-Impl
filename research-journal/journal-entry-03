@@ -5,6 +5,15 @@ I learned that I had misunderstood the distinctions between type checking, type 
 
 An anticipated confusion has manifested: the types of Haskell versus the types of the PL I am implementing. Must be more clear and concise when thinking/talking about these types.
 
-
 Q: Question about parser in TypeCheck.hs, specifically function tmCtxParse and Parsec. Not necessary to complete project, just a curiosity.
+-- cursory Haskell syntax question about Left/Right.
 A: ?
+
+I didn't accomplish as much as I had hoped this week. Memorial Day coupled with other classes' obligations (camping trip in particular) detracted from working on case study.
+
+Read through latter half of chapter 2 of category theory seminar. After reading post 2.6-3 material, I understand the information from the first half of the chapter better. 
+
+TypeCheck.hs is coming along. I still need to learn more about how to use type aliases like TmName and how to case split on contents of a type like that. The type check rules show how rec works, so I must enforce t1 :: Nat.
+
+Q: For "type construction", should the fuction (typeCheck ctx term) actually add types of terms to the context using function (extCtx ctx tmname type)? 
+

@@ -47,30 +47,39 @@ parseCtx str =
 -- or throws an error.                                                 --
 -------------------------------------------------------------------------
 typeCheck :: Fresh m => Ctx -> Term -> ErrorT String m Type
-typeCheck [] _               = undefined
-typeCheck ctx Zero           = do
-                                return Nat
-typeCheck ctx (Suc t)        = do
-                                x <- typeCheck ctx t
-                                return x
-typeCheck (c:c') (Var t)     = do
-                                if (fst c) == t
-                                 then do
-                                    return $ snd c
-                                 else do
-                                    x <- typeCheck c' (Var t)
-                                    return x        
-typeCheck ctx (App t1 t2)    = do
-                                t1' <- typeCheck ctx t1
-                                t2' <- typeCheck ctx t2
-                                return (Arr t1' t2')
-typeCheck ctx (Fun ty tm)    = do
-				undefined
-                                -- (x,y) <- unbind tm
-                                -- y' <- typeCheck ctx x
-                                -- return y'
-typeCheck ctx (Rec t1 t2 t3) = undefined
+typeCheck [] _ = undefined
+typeCheck ctx Zero = do
+        return Nat
+typeCheck ctx (Suc t) = do
+	x <- typeCheck ctx t
+	return x
+typeCheck ((tn,ty):c') (Var t)
+	| t == tn = return $ ty
+ 	| otherwise = 
+	  do 
+    	   x <- typeCheck c' (Var t)
+    	   return x        
+typeCheck ctx (App t1 t2) = do -- t1 :: T1 -> T2 // t2 :: T1
+	t1' <- typeCheck ctx t1
+        t2' <- typeCheck ctx t2
+	case t1' of
+	 Arr t1'' _ -> case t1'' of
+			 t2' -> return $ Arr t1'' t2'
+			 _ -> error "Type of 1st arg src not the type of 2nd arg."
+	 _ -> error "1st arg is not :: Arr Type Type"
+        return $ Arr t1' t2'
+typeCheck ctx (Fun ty tm) = do -- ty is type of bound var  
+	  (a,b) <- unbind tm
+	  t1 <- typeCheck ctx b
+	  case ty of
+	    Arr t1 _ -> return ty 
+	    _ -> error "This is not a correct function."
+typeCheck ctx (Rec t t1 t2) = undefined
 
+-- testUnbind :: (Bind TmName Term) -> (TmName, Term)
+-- testUnbind :: (Fun Type (TmName, Term)) -> (TmName, Term)
+testUnbind (Fun ty tm) = do
+		return unbind tm
 -------------------------------------------------------------------------
 -- This function makes it easy to run the type checker.                --
 -------------------------------------------------------------------------

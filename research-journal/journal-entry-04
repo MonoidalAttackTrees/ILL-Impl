@@ -1,4 +1,10 @@
 Week of 06 June 2016
 Research Journal Entry 04
 
-Trouble with unbind.
+Trouble with unbind and complying with type constraints. Not sure where to look for help with this.
+
+I ran into minor case issues when case splitting over a term in Rec t0 t1 t2. I want to ensure that t2 has T -> Nat -> T, so I want to run 
+ case t2 of 
+  (Arr (Arr T1 Nat) T1) -> return ...
+
+but Haskell doesn't like that case.

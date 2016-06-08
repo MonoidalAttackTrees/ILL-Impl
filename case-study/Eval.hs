@@ -16,8 +16,11 @@ import Pretty
 -- The evaluator.                                                     --
 ------------------------------------------------------------------------
 eval :: Fresh m => Term -> m Term
-eval = undefined
-
+eval Zero = undefined
+eval (Suc t) = undefined
+eval (Fun ty tm) = undefined
+eval (App t1 t2) = undefined
+eval (Rec t0 t1 t2) = undefined
 ------------------------------------------------------------------------
 -- This function make it easy to run the evaluator.                   --
 ------------------------------------------------------------------------

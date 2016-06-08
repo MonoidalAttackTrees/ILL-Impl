@@ -13,7 +13,7 @@ import Control.Monad.Trans.Except -- suggested replacement for ErrorT
 import Syntax
 import Parser
 import Pretty
-import Testing
+-- import Testing
 
 ------------------------------------------------------------------------
 -- Typing Contexts.                                                   --
@@ -74,15 +74,16 @@ typeCheck ctx (Fun ty tm) = undefined --do -- ty is type of bound var
 	  --   Arr t1 _ -> return ty 
 	  --   _ -> error "This is not a correct function."
 	  -- extCtx ctx a b
-typeCheck ctx (Rec t t1 t2) = do
-	t'  <- typeCheck ctx t
+typeCheck ctx (Rec t0 t1 t2) = do
+	t0'  <- typeCheck ctx t
 	t1' <- typeCheck ctx t1
 	t2' <- typeCheck ctx t2
-	case t' of 
-	  Nat -> undefined
+	case t0' of 
+	  Nat -> undefined -- continue
+	  _ -> error "Type of 1st arg is not Nat."
 	case t2' of
 	  t1' -> undefined -- base
-	  (Arr (Arr t1' t') t1') -> undefined -- step. T -> Nat -> T
+	  (Arr (Arr t1' t0') t1') -> undefined -- step. T -> Nat -> T
 	  _ -> error "Type error in Rec."
 
 -- testUnbind :: (Bind TmName Term) -> (TmName, Term)

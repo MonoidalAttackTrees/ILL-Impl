@@ -23,7 +23,6 @@ type Ctx = [(TmName, Type)]
 emptyCtx :: Ctx
 emptyCtx = []
 
-
 -------------------------------------------------------------------------
 -- Extension function for contexts.  It adds a term name and a         --
 -- corresponding type to the context.                                  --
@@ -68,21 +67,23 @@ typeCheck ctx (App t1 t2) = do -- t1 :: T1 -> T2 // t2 :: T1
 			 _ -> error "Type of 1st arg src not the type of 2nd arg."
 	 _ -> error "1st arg is not :: Arr Type Type"
         return $ Arr t1' t2'
-typeCheck ctx (Fun ty tm) = do -- ty is type of bound var  
-	  (a,b) <- unbind tm
-	  t1 <- typeCheck ctx b
-	  case ty of
-	    Arr t1 _ -> return ty 
-	    _ -> error "This is not a correct function."
+typeCheck ctx (Fun ty tm) = undefined --do -- ty is type of bound var  
+	  -- (a,b) <- unbind tm
+	  -- t1 <- typeCheck ctx b
+	  -- case ty of
+	  --   Arr t1 _ -> return ty 
+	  --   _ -> error "This is not a correct function."
 	  -- extCtx ctx a b
 typeCheck ctx (Rec t t1 t2) = do
-	case t of 
-	 Nat -> undefined
-	case t2 of
-	 t1 -> undefined -- base
-	 (Arr (Arr t1 t) t1) -> undefined -- step
-	 _ -> error "Type error in Rec."
-
+	t'  <- typeCheck ctx t
+	t1' <- typeCheck ctx t1
+	t2' <- typeCheck ctx t2
+	case t' of 
+	  Nat -> undefined
+	case t2' of
+	  t1' -> undefined -- base
+	  (Arr (Arr t1' t') t1') -> undefined -- step. T -> Nat -> T
+	  _ -> error "Type error in Rec."
 
 -- testUnbind :: (Bind TmName Term) -> (TmName, Term)
 -- testUnbind :: (Fun Type (TmName, Term)) -> (TmName, Term)

@@ -74,7 +74,15 @@ typeCheck ctx (Fun ty tm) = do -- ty is type of bound var
 	  case ty of
 	    Arr t1 _ -> return ty 
 	    _ -> error "This is not a correct function."
-typeCheck ctx (Rec t t1 t2) = undefined
+	  -- extCtx ctx a b
+typeCheck ctx (Rec t t1 t2) = do
+	case t of 
+	 Nat -> undefined
+	case t2 of
+	 t1 -> undefined -- base
+	 (Arr (Arr t1 t) t1) -> undefined -- step
+	 _ -> error "Type error in Rec."
+
 
 -- testUnbind :: (Bind TmName Term) -> (TmName, Term)
 -- testUnbind :: (Fun Type (TmName, Term)) -> (TmName, Term)

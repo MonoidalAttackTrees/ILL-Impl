@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-} 
 ------------------------------------------------------------------------
 -- This file implements the type construction algorithm for RecCalc.  --
 --                                                                    --
@@ -66,24 +67,23 @@ typeCheck ctx (App t1 t2) = do -- t1 :: T1 -> T2 // t2 :: T1
 			 t2' -> return $ Arr t1'' t2'
 			 _ -> error "Type of 1st arg src not the type of 2nd arg."
 	 _ -> error "1st arg is not :: Arr Type Type"
-        return $ Arr t1' t2'
-typeCheck ctx (Fun ty tm) = undefined --do -- ty is type of bound var  
-	  -- (a,b) <- unbind tm
-	  -- t1 <- typeCheck ctx b
-	  -- case ty of
-	  --   Arr t1 _ -> return ty 
-	  --   _ -> error "This is not a correct function."
-	  -- extCtx ctx a b
+        -- return $ Arr t1' t2'
+typeCheck ctx (Fun tyA tm) = do
+       	 (a, b) <- unbind tm
+	 -- let ctx' = extCtx ctx a tyA
+	 -- tyB <- typeCheck ctx' b
+	 tyB <- typeCheck ((a, tyA):ctx) b
+	 return $ Arr tyA tyB
 typeCheck ctx (Rec t0 t1 t2) = do
-	t0'  <- typeCheck ctx t
+	t0' <- typeCheck ctx t0
 	t1' <- typeCheck ctx t1
 	t2' <- typeCheck ctx t2
 	case t0' of 
 	  Nat -> undefined -- continue
 	  _ -> error "Type of 1st arg is not Nat."
 	case t2' of
-	  t1' -> undefined -- base
-	  (Arr (Arr t1' t0') t1') -> undefined -- step. T -> Nat -> T
+	  t1' -> return t1' -- base
+	  (Arr t1' (Arr t0' t1'')) -> undefined -- step. T -> Nat -> T
 	  _ -> error "Type error in Rec."
 
 -- testUnbind :: (Bind TmName Term) -> (TmName, Term)

@@ -46,49 +46,43 @@ parseCtx str =
 -- or throws an error.                                                 --
 -------------------------------------------------------------------------
 typeCheck :: Fresh m => Ctx -> Term -> ExceptT String m Type
-typeCheck [] _ = undefined
+typeCheck [] _ = undefined -- is an empty context an error? 
 typeCheck ctx Zero = do
         return Nat
 typeCheck ctx (Suc t) = do
 	x <- typeCheck ctx t
 	return x
-typeCheck ((tn,ty):c') (Var t)
-	| t == tn = return $ ty
- 	| otherwise = 
-	  do 
-    	   x <- typeCheck c' (Var t)
-    	   return x        
-typeCheck ctx (App t1 t2) = do -- t1 :: T1 -> T2 // t2 :: T1
-	t1' <- typeCheck ctx t1
-        t2' <- typeCheck ctx t2
-	case t1' of
-	 Arr t1'' _ -> case t1'' of
-			 t2' -> return $ Arr t1'' t2'
-			 _ -> error "Type of 1st arg src not the type of 2nd arg."
-	 _ -> error "1st arg is not :: Arr Type Type"
-        -- return $ Arr t1' t2'
+typeCheck ctx (Var t) = do
+	case (lookup t ctx) of 
+	 Just ty -> return ty 
+	 Nothing -> error "Term not in the context!"
+--typeCheck ((tn,ty):c') (Var t)
+	-- | t == tn = return $ ty
+ 	-- | otherwise = 
+	--  do 
+    	--   x <- typeCheck c' (Var t)
+    	--   return x        
+typeCheck ctx (App t1 t2) = do
+	ty1 <- typeCheck ctx t1
+        ty2 <- typeCheck ctx t2
+	case ty1 of
+	 (Arr ty1' ty2') -> 
+		case ty1' of
+		  ty1 -> return ty2'
+	 _ -> error "1st arg is not a function."
 typeCheck ctx (Fun tyA tm) = do
-       	 (a, b) <- unbind tm
-	 -- let ctx' = extCtx ctx a tyA
-	 -- tyB <- typeCheck ctx' b
-	 tyB <- typeCheck ((a, tyA):ctx) b
+       	 (a,b) <- unbind tm
+	 let ctx' = extCtx ctx a tyA
+	 tyB <- typeCheck ctx' b
+	 -- tyB <- typeCheck ((a,tyA):ctx) b
 	 return $ Arr tyA tyB
 typeCheck ctx (Rec t0 t1 t2) = do
-	t0' <- typeCheck ctx t0
-	t1' <- typeCheck ctx t1
-	t2' <- typeCheck ctx t2
-	case t0' of 
-	  Nat -> undefined -- continue
-	  _ -> error "Type of 1st arg is not Nat."
-	case t2' of
-	  t1' -> return t1' -- base
-	  (Arr t1' (Arr t0' t1'')) -> undefined -- step. T -> Nat -> T
-	  _ -> error "Type error in Rec."
-
--- testUnbind :: (Bind TmName Term) -> (TmName, Term)
--- testUnbind :: (Fun Type (TmName, Term)) -> (TmName, Term)
-testUnbind (Fun ty tm) = do
-		return unbind tm
+	ty0 <- typeCheck ctx t0
+	ty1 <- typeCheck ctx t1
+	ty2 <- typeCheck ctx t2
+	case ty0 of
+	 Nat -> return ty1
+	 	 
 -------------------------------------------------------------------------
 -- This function makes it easy to run the type checker.                --
 -------------------------------------------------------------------------

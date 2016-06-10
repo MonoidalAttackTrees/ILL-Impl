@@ -81,7 +81,10 @@ typeCheck ctx (Rec t0 t1 t2) = do
 	ty1 <- typeCheck ctx t1
 	ty2 <- typeCheck ctx t2
 	case ty0 of
-	 Nat -> return ty1
+	 Nat -> case ty2 of
+		 (Arr ty1 (Arr ty0 ty1')) -> 
+		  case ty1' of
+		   ty1 -> return ty1
 	 	 
 -------------------------------------------------------------------------
 -- This function makes it easy to run the type checker.                --

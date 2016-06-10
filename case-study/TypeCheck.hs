@@ -8,8 +8,7 @@
 module TypeCheck where
 
 import Text.Parsec
-import Control.Monad.Trans.Error
-import Control.Monad.Trans.Except -- suggested replacement for ErrorT    
+import Control.Monad.Except
 
 import Syntax
 import Parser
@@ -46,7 +45,7 @@ parseCtx str =
 -- this function will either return the type the input term inhabits   --
 -- or throws an error.                                                 --
 -------------------------------------------------------------------------
-typeCheck :: Fresh m => Ctx -> Term -> ErrorT String m Type
+typeCheck :: Fresh m => Ctx -> Term -> ExceptT String m Type
 typeCheck [] _ = undefined
 typeCheck ctx Zero = do
         return Nat
@@ -94,4 +93,4 @@ testUnbind (Fun ty tm) = do
 -- This function makes it easy to run the type checker.                --
 -------------------------------------------------------------------------
 runTypeChecker :: Ctx -> Term -> Either String Type
-runTypeChecker ctx term = runFreshM.runErrorT $ typeCheck ctx term
+runTypeChecker ctx term = runFreshM.runExceptT $ typeCheck ctx term

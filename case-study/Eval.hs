@@ -16,11 +16,20 @@ import Pretty
 -- The evaluator.                                                     --
 ------------------------------------------------------------------------
 eval :: Fresh m => Term -> m Term
-eval Zero = undefined
-eval (Suc t) = undefined
-eval (Fun ty tm) = undefined
-eval (App t1 t2) = undefined
-eval (Rec t0 t1 t2) = undefined
+eval Zero = return Zero
+eval (Suc t) = eval t
+eval (Fun ty tm) = return $ Fun ty tm
+eval (App t1 t2) = do
+ case t1 of 
+  (Fun ty tm) -> do 
+		   (bv,by) <- unbind tm
+		   return $ replace bv t2 by	  
+  _ -> return $ App t1 t2 -- not a beta redux
+eval (Rec t0 t1 t2) = do
+ case t0 of
+  Zero    -> return t1
+  (Suc t) -> return $ App (App t2 (Rec t0 t1 t2)) t0
+
 ------------------------------------------------------------------------
 -- This function make it easy to run the evaluator.                   --
 ------------------------------------------------------------------------

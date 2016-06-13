@@ -1,0 +1,9 @@
+Week of 13 June 2016
+Journal Entry 05
+
+Reading Ch.3 and re-reading Ch.2 of category theory book.
+Reviewed SystemT lecture implementation of evaluator.
+
+Monday 13 June 2016:
+
+ Made changes to Eval.hs. I'm a little unsure of what cases I need to cover from the evaluation rules. Obviously we want to handle Beta redux and recursion. Do we need to implement evaluation rules for a rule like t1 ~> t1' / app t1 t2 ~> app t1' t2?  

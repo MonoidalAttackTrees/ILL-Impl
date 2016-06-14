@@ -46,30 +46,29 @@ parseCtx str =
 -- or throws an error.                                                 --
 -------------------------------------------------------------------------
 typeCheck :: Fresh m => Ctx -> Term -> ExceptT String m Type
-typeCheck [] _ = undefined -- is an empty context an error? 
+typeCheck [] tm = do
+	tm' <- typeCheck [] tm
+	return tm'
 typeCheck ctx Zero = do
         return Nat
-typeCheck ctx (Suc t) = do
+typeCheck ctx (Suc t) = do	
 	x <- typeCheck ctx t
-	return x
+	if (x /= Nat)
+	 then error "Type Error: Successor applied to non-Nat type."
+	 else return x
 typeCheck ctx (Var t) = do
 	case (lookup t ctx) of 
 	 Just ty -> return ty 
-	 Nothing -> error "Term not in the context!"
---typeCheck ((tn,ty):c') (Var t)
-	-- | t == tn = return $ ty
- 	-- | otherwise = 
-	--  do 
-    	--   x <- typeCheck c' (Var t)
-    	--   return x        
+	 Nothing -> error "Type Error: Term not in the context."    
 typeCheck ctx (App t1 t2) = do
 	ty1 <- typeCheck ctx t1
         ty2 <- typeCheck ctx t2
 	case ty1 of
 	 (Arr ty1' ty2') -> 
-		case ty1' of
-		  ty1 -> return ty2'
-	 _ -> error "1st arg is not a function."
+	   if   (ty1' == ty2) 
+	   then return ty2'
+	   else error "Type Error: Source of t1 is not t2."
+	 _ -> error "Type Error: Type of t1 is not A -> B."
 typeCheck ctx (Fun tyA tm) = do
        	 (a,b) <- unbind tm
 	 let ctx' = extCtx ctx a tyA
@@ -82,10 +81,11 @@ typeCheck ctx (Rec t0 t1 t2) = do
 	ty2 <- typeCheck ctx t2
 	case ty0 of
 	 Nat -> case ty2 of
-		 (Arr ty1 (Arr ty0 ty1')) -> 
-		  case ty1' of
-		   ty1 -> return ty1
-	 	 
+	 	 (Arr n0 (Arr Nat n1)) -> 
+	  	   if (ty1 == n0 && ty1 == n1) then return ty1
+	  	   else error 
+	   	     "Type Error: Arrow type of t1 does not have correct src/tar."
+ 	 _ -> error "Type Error: t0 is not type Nat."	 
 -------------------------------------------------------------------------
 -- This function makes it easy to run the type checker.                --
 -------------------------------------------------------------------------

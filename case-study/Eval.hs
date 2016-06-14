@@ -17,15 +17,21 @@ import Pretty
 ------------------------------------------------------------------------
 eval :: Fresh m => Term -> m Term
 eval Zero = return Zero
-eval (Suc t) = eval t
-eval (Fun ty tm) = return $ Fun ty tm
+eval (Suc t) = do 
+ t' <- eval t
+ return (Suc t')
+eval (Fun tyA tm) = do
+ (x,bdy) <- unbind tm
+ bdy' <- eval bdy
+ return $ Fun tyA $ bind x bdy'  
+-- return $ Fun ty tm
 eval (App t1 t2) = do
  case t1 of 
   (Fun ty tm) -> do 
 		   (bv,by) <- unbind tm
 		   return $ replace bv t2 by	  
   _ -> return $ App t1 t2 -- not a beta redux
-eval (Rec t0 t1 t2) = do
+eval (Rec t0 t1 t2) = do -- eval t0
  case t0 of
   Zero    -> return t1
   (Suc t) -> return $ App (App t2 (Rec t0 t1 t2)) t0
@@ -48,3 +54,7 @@ testEval = runPrettyTerm.runEval.parseTerm
 ------------------------------------------------------------------------
 typePres :: Term -> Bool
 typePres = undefined
+
+typePres' :: Ctx -> Term -> Bool
+typePres' ctx tm = undefined
+ where ty = runTypeChecker ctx tm

@@ -13,3 +13,8 @@ Tuesday 14 June 2016
  Finish Evaluator and typePres. Have questions about typePres: calling runTypeChecker requires a Ctx to be passed to it. Should I create a helper function (i.e typePres' :: Term -> Ctx -> Bool
      typePres' tm ctx = typePres ... 		) 
  Will ask these questions during weekly meeting today.
+
+ Post-meeting & session conclusion: Fixed some Haskell errors in TypeCheck.hs. Fixed logic error in Eval.hs. TypeCheck.hs and Eval.hs should be complete now.
+
+Wednesday 15 June 2016
+ $

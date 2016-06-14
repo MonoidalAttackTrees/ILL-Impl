@@ -24,18 +24,21 @@ eval (Fun tyA tm) = do
  (x,bdy) <- unbind tm
  bdy' <- eval bdy
  return $ Fun tyA $ bind x bdy'  
--- return $ Fun ty tm
 eval (App t1 t2) = do
  case t1 of 
   (Fun ty tm) -> do 
 		   (bv,by) <- unbind tm
 		   return $ replace bv t2 by	  
   _ -> return $ App t1 t2 -- not a beta redux
-eval (Rec t0 t1 t2) = do -- eval t0
- case t0 of
-  Zero    -> return t1
-  (Suc t) -> return $ App (App t2 (Rec t0 t1 t2)) t0
-
+eval (Rec t0 t1 t2) = do
+ t0' <- eval t0
+ t1' <- eval t1
+ t2' <- eval t2 
+ case t0' of
+  Zero    -> return t1'
+  (Suc t) -> do
+	term <- eval $ App (App t2' (Rec t0' t1' t2')) t0' 
+	return term
 ------------------------------------------------------------------------
 -- This function make it easy to run the evaluator.                   --
 ------------------------------------------------------------------------

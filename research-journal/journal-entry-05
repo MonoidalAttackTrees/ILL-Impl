@@ -6,4 +6,10 @@ Reviewed SystemT lecture implementation of evaluator.
 
 Monday 13 June 2016:
 
- Made changes to Eval.hs. I'm a little unsure of what cases I need to cover from the evaluation rules. Obviously we want to handle Beta redux and recursion. Do we need to implement evaluation rules for a rule like t1 ~> t1' / app t1 t2 ~> app t1' t2?  
+ Made changes to Eval.hs. I'm a little unsure of what cases I need to cover from the evaluation rules. Obviously we want to handle Beta redux and recursion. Do we need to implement evaluation rules for a rule like t1 ~> t1' / app t1 t2 ~> app t1' t2? 
+
+Tuesday 14 June 2016
+
+ Finish Evaluator and typePres. Have questions about typePres: calling runTypeChecker requires a Ctx to be passed to it. Should I create a helper function (i.e typePres' :: Term -> Ctx -> Bool
+     typePres' tm ctx = typePres ... 		) 
+ Will ask these questions during weekly meeting today.

@@ -17,4 +17,5 @@ Tuesday 14 June 2016
  Post-meeting & session conclusion: Fixed some Haskell errors in TypeCheck.hs. Fixed logic error in Eval.hs. TypeCheck.hs and Eval.hs should be complete now.
 
 Wednesday 15 June 2016
- $
+ 
+ Implemented typePres' (changed type to accomodate passing a Ctx). My understanding is that by allowing a Ctx to be passed, we can check type preservation even on terms that are not closed.

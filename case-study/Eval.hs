@@ -59,5 +59,9 @@ typePres :: Term -> Bool
 typePres = undefined
 
 typePres' :: Ctx -> Term -> Bool
-typePres' ctx tm = undefined
- where ty = runTypeChecker ctx tm
+typePres' ctx tm 
+ | (ty1 == ty2) = True
+ | otherwise    = False 
+  where ty1 = runTypeChecker ctx tm
+        tm' = runEval tm
+  	ty2 = runTypeChecker ctx tm'

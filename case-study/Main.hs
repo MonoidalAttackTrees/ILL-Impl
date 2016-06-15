@@ -21,7 +21,15 @@ import Eval
 -- to the input contexts.                                             --
 ------------------------------------------------------------------------
 mainCheck :: IO ()
-mainCheck = undefined
+mainCheck = do
+ putStrLn "Enter a context."
+ l <- getLine
+ ctx <- parseCtx line
+ putStrLn "Enter a term."
+ l' <- getLine
+ tm <- parseTerm line
+ ty <- runTypeChecker ctx tm
+ putStrLn (read ty :: String) 
 
 ------------------------------------------------------------------------
 -- This function prompts the user for a term and then outputs its     --

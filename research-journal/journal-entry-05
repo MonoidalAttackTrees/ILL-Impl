@@ -19,3 +19,5 @@ Tuesday 14 June 2016
 Wednesday 15 June 2016
  
  Implemented typePres' (changed type to accomodate passing a Ctx). My understanding is that by allowing a Ctx to be passed, we can check type preservation even on terms that are not closed.
+
+ Wrote three main functions without checking if code compiled first time. It did not. However, I am close to finishing this part of the project and moving on to testing. I just need learn a little bit more about IO monads and using other monads with different type constraints inside of an IO monad.

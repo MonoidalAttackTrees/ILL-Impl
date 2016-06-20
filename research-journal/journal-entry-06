@@ -1,0 +1,9 @@
+Week of 20 June 2016
+Journal Entry 06
+
+Monday 20 June 2016
+
+ Added access control to Syntax.hs, Parser.hs, TypeCheck.hs. This was a by-product of wanting to create test cases inside Main.hs and needing access to type constructors not explicitly imported by Main.hs.
+
+ Encountering a stack overflow error when testing certain terms. Parsing terms and types seems to work just fine. It might be a problem with how I am giving lambda abstractions to input (mainCheck). 
+

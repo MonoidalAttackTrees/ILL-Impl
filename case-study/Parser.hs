@@ -8,7 +8,12 @@
 -- Course: CSCI-3300 (Fall 2014)                                      --
 -- Instructor: Prof. Eades                                            --
 ------------------------------------------------------------------------
-module Parser where
+module Parser (module Syntax,
+                      termParser,
+                      typeParser,
+                      parseTerm,
+		      parseType,
+		      tmCtxParse ) where
 
 import Prelude
 import Data.List

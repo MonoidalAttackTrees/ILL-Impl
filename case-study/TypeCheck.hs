@@ -5,7 +5,12 @@
 -- Course: CSCI-3300 (Fall 2014)                                      --
 -- Instructor: Prof. Eades                                            --
 ------------------------------------------------------------------------
-module TypeCheck where
+module TypeCheck (emptyCtx,
+		  Ctx(..),
+                  extCtx,
+                  parseCtx,
+                  typeCheck,
+                  runTypeChecker)where
 
 import Text.Parsec
 import Control.Monad.Except

@@ -19,7 +19,8 @@ module Syntax (module Unbound.LocallyNameless,
                module Unbound.LocallyNameless.Alpha,
                TmName,
                Type(Nat, Arr),
-               Term(Var, Fun, Zero, Suc, App, Rec),               
+               Term(..),
+	       --Term(Var, Fun, Zero, Suc, App, Rec),               
                replace, 
                n2s) where
 

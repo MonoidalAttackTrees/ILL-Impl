@@ -20,6 +20,15 @@ import Eval
 -- context, and a term, and then outputs the term's type with respect --
 -- to the input contexts.                                             --
 ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+ctx1 :: Ctx
+ctx1 = parseCtx $ "y : Nat" 
+
+term1 :: Term
+term1 = parseTerm $ "fun x : Nat => y"
+------------------------------------------------------------------------
+
 mainCheck :: IO ()
 mainCheck = do
  putStrLn "Enter a context."

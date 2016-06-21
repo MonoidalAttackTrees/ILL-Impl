@@ -27,6 +27,7 @@ ctx1 = parseCtx $ "y : Nat"
 
 term1 :: Term
 term1 = parseTerm $ "fun x : Nat => y"
+
 ------------------------------------------------------------------------
 
 mainCheck :: IO ()
@@ -38,8 +39,8 @@ mainCheck = do
  l' <- getLine
  let tm = parseTerm l'
  let ty = case (runTypeChecker ctx tm) of
-           Left left   -> error "Bad type."
-           Right right -> right
+           Left msg  -> error msg
+           Right ty' -> ty'
  putStrLn $ runPrettyType ty
  -- --putStrLn $ read ty :: String
 

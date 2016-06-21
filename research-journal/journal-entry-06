@@ -5,5 +5,11 @@ Monday 20 June 2016
 
  Added access control to Syntax.hs, Parser.hs, TypeCheck.hs. This was a by-product of wanting to create test cases inside Main.hs and needing access to type constructors not explicitly imported by Main.hs.
 
- Encountering a stack overflow error when testing certain terms. Parsing terms and types seems to work just fine. It might be a problem with how I am giving lambda abstractions to input (mainCheck). 
+ Encountering a stack overflow error when testing certain terms. Parsing terms and types seems to work just fine. It might be a problem with how I am giving lambda abstractions to input (mainCheck).
+
+Tuesday 21 June 2016
+ 
+ 13:00 meeting. Realized that errors in Main.hs were from giving STDIN literal strings versus normal STDIN. Parser.hs was understandably struggling with " " in input. mainCheck and mainEval seem to behave.
+
+ Spent time on category theory questions, especially on natural transformations, posets as categories, and commutative diagrams as proofs. Need to leave early for anniversary prep. 
 

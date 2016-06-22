@@ -11,5 +11,9 @@ Tuesday 21 June 2016
  
  13:00 meeting. Realized that errors in Main.hs were from giving STDIN literal strings versus normal STDIN. Parser.hs was understandably struggling with " " in input. mainCheck and mainEval seem to behave.
 
- Spent time on category theory questions, especially on natural transformations, posets as categories, and commutative diagrams as proofs. Need to leave early for anniversary prep. 
+ Spent time on category theory questions, especially on natural transformations, posets as categories, and commutative diagrams as proofs. Need to leave early for anniversary prep.
+
+Wednesday 22 June 2016
+
+ Worked on forming good testing terms for a recursive case. I do need practice working inside the PL, at least at forming good terms. Gotta work on Cat Theory for a bit.
 

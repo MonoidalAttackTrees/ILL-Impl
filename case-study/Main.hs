@@ -22,12 +22,21 @@ import Eval
 ------------------------------------------------------------------------
 
 ------------------------------------------------------------------------
+-- These functions are used for testing.			      --
+------------------------------------------------------------------------
 ctx1 :: Ctx
-ctx1 = parseCtx $ "y : Nat" 
+ctx1 = parseCtx $ "a : Nat, b : Nat" 
+
+term0 :: Term
+term0 = parseTerm $ "suc suc suc suc suc 0"
 
 term1 :: Term
-term1 = parseTerm $ "fun x : Nat => y"
+term1 = parseTerm $ "0"
 
+term2 :: Term
+term2 = parseTerm $ "fun x : Nat => b"
+
+recTerm = Rec term0 term1 term2
 ------------------------------------------------------------------------
 
 mainCheck :: IO ()

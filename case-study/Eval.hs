@@ -39,6 +39,7 @@ eval (Rec t0 t1 t2) = do
   (Suc t) -> do
 	term <- eval $ App (App t2' (Rec t0' t1' t2')) t0' 
 	return term
+  _       -> error "Evaluator Error: Type of t0 is not Nat." 
 ------------------------------------------------------------------------
 -- This function make it easy to run the evaluator.                   --
 ------------------------------------------------------------------------

@@ -57,8 +57,13 @@ testEval = runPrettyTerm.runEval.parseTerm
 -- This function tests a RecCalc program for type preservation.      --
 ------------------------------------------------------------------------
 typePres :: Term -> Bool
-typePres = undefined
-
+typePres tm 
+ | ty1 == ty2 = True
+ | otherwise  = False
+  where ty1 = runTypeChecker emptyCtx tm
+        tm' = runEval tm
+        ty2 = runTypeChecker emptyCtx tm'
+   
 typePres' :: Ctx -> Term -> Bool
 typePres' ctx tm 
  | (ty1 == ty2) = True

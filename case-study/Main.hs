@@ -34,8 +34,11 @@ term1 :: Term
 term1 = parseTerm $ "0"
 
 term2 :: Term
-term2 = parseTerm $ "fun x : Nat => b"
+term2 = parseTerm $ "fun bv : Nat => bdy"
 
+appTerm = runEval tm
+ where tm  = parseTerm $ "app (fun bv : Nat => bdy) to b"
+ 
 recTerm = Rec term0 term1 term2
 ------------------------------------------------------------------------
 
@@ -74,11 +77,6 @@ mainPres = do
  putStrLn "Enter a term to check type preservation."
  l <- getLine
  let tm = parseTerm l
- -- only added a getLine for Ctx because I changed typePres to typePres'
- -- we shall see if a test file makes this easier to test,
- -- otherwise will be a pain
- putStrLn "Enter a context."
- l' <- getLine
- let ctx = parseCtx l'
- let val = typePres' ctx tm
+ let val = typePres tm
+ -- let val = typePres' ctx tm
  putStrLn $ show $ val

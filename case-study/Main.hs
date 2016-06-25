@@ -45,7 +45,7 @@ recTerm0 = runEval tm
  where tm = parseTerm $ "rec 0 with (suc suc 0) || (fun bv1 : Nat => (fun bv2 : (Nat -> Nat) => (suc bv2)))"
 
 recTerm1 = runEval tm
- where tm = parseTerm $ "rec (suc suc suc 0) with (suc suc 0) || (fun bv1 : Nat => (fun bv2 : (Nat -> Nat) => (suc bv2)))"
+ where tm = parseTerm $ "rec (suc suc suc 0) with (suc suc 0) || (fun bv1 : Nat => (fun bv2 : (Nat -> Nat) => (fun bv3 : Nat => (suc 0))))"
 ------------------------------------------------------------------------
 
 mainCheck :: IO ()

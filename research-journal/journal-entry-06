@@ -17,3 +17,14 @@ Wednesday 22 June 2016
 
  Worked on forming good testing terms for a recursive case. I do need practice working inside the PL, at least at forming good terms. Gotta work on Cat Theory for a bit.
 
+Thursday 23 June 2016
+
+ Category theory seminar prep.
+
+Friday 24 June 2016
+
+ Removed the typePres' idea, reverted to original specification. Added test cases in Main.hs. appTest successfully applies a function in a beta-reducible expression. 
+
+Saturday 25 June 2016
+
+ Trying more test cases.

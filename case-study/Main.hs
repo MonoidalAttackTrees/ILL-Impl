@@ -38,8 +38,14 @@ term2 = parseTerm $ "fun bv : Nat => bdy"
 
 appTerm = runEval tm
  where tm  = parseTerm $ "app (fun bv : Nat => bdy) to b"
- 
-recTerm = Rec term0 term1 term2
+
+recFunct = parseTerm $ "(fun bv1 : Nat => (fun bv2 : (Nat -> Nat) => (suc bv2)))" 
+
+recTerm0 = runEval tm
+ where tm = parseTerm $ "rec 0 with (suc suc 0) || (fun bv1 : Nat => (fun bv2 : (Nat -> Nat) => (suc bv2)))"
+
+recTerm1 = runEval tm
+ where tm = parseTerm $ "rec (suc suc suc 0) with (suc suc 0) || (fun bv1 : Nat => (fun bv2 : (Nat -> Nat) => (suc bv2)))"
 ------------------------------------------------------------------------
 
 mainCheck :: IO ()

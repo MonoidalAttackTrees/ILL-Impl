@@ -29,7 +29,7 @@ eval (App t1 t2) = do
   (Fun ty tm) -> do 
 		   (bv,by) <- unbind tm
 		   return $ replace bv t2 by	  
-  _ -> return $ App t1 t2 -- not a beta redux
+  _ -> return $ App t1 t2
 eval (Rec t0 t1 t2) = do
  t0' <- eval t0
  t1' <- eval t1

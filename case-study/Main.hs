@@ -27,25 +27,22 @@ import Eval
 ctx1 :: Ctx
 ctx1 = parseCtx $ "a : Nat, b : Nat" 
 
-term0 :: Term
-term0 = parseTerm $ "suc suc suc suc suc 0"
+-- \y.y+3
+func0 = parseTerm $ "fun y : Nat => suc suc suc y"
 
-term1 :: Term
-term1 = parseTerm $ "0"
+-- app \x.x+2 1
+appTerm0 = runEval tm
+ where tm = parseTerm $ "app fun x : Nat => (suc suc x) to suc 0" 
 
-term2 :: Term
-term2 = parseTerm $ "fun bv : Nat => bdy"
-
-appTerm = runEval tm
- where tm  = parseTerm $ "app (fun bv : Nat => bdy) to b"
-
-recFunct = parseTerm $ "(fun bv1 : Nat => (fun bv2 : (Nat -> Nat) => (suc bv2)))" 
+-- app \y.y+3 3
+appTerm1 = runEval tm
+ where tm = parseTerm $ "app fun y : Nat => suc suc suc y to suc suc suc 0"
 
 recTerm0 = runEval tm
- where tm = parseTerm $ "rec 0 with (suc suc 0) || (fun bv1 : Nat => (fun bv2 : (Nat -> Nat) => (suc bv2)))"
+ where tm = parseTerm $ "rec (suc suc 0) with (suc suc suc 0) || fun x : Nat => suc x"
 
-recTerm1 = runEval tm
- where tm = parseTerm $ "rec (suc suc suc 0) with (suc suc 0) || (fun bv1 : Nat => (fun bv2 : (Nat -> Nat) => (fun bv3 : Nat => (suc 0))))"
+--recTerm1 = runEval tm
+-- where tm = parseTerm $ "rec (suc suc suc 0) with (suc suc 0) || (fun bv1 : Nat => -- (fun bv2 : (Nat -> Nat) => (fun bv3 : Nat => (suc 0))))"
 ------------------------------------------------------------------------
 
 mainCheck :: IO ()

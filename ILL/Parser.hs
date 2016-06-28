@@ -17,7 +17,7 @@ import Data.Functor.Identity
 import Syntax
 
 lexer = haskellStyle {
-  Token.reservedOpNames = ["let", "be", "in", "for", "as", "(x)", "*", "-o", 				   "promote", "discard", "derelict", "copy" ] }
+  Token.reservedOpNames = ["let", "be", "in", "for", "as", "(x)", "*", "-o", 				   "promote", "discard", "derelict", "copy", "unit" ] }
 
 tokenizer = Token.makeTokenParser lexer
 
@@ -35,5 +35,30 @@ comma      = Token.comma tokenizer
 colon      = Token.colon tokenizer
 
 unexpColon msg = unexpected msg
+------------------------------------------------------------------------
+-- Type Parsers							      --
+------------------------------------------------------------------------
+tyUnit = do
+ reservedOp "unit"
+ return UnitTy
 
--- Parsing table for types
+tyLolly = undefined
+
+tyTensor = undefined
+
+------------------------------------------------------------------------
+-- Parse tables							      --
+------------------------------------------------------------------------
+table = [[binOp AssocRight "(x)" (\d r -> TensorTy d r)]]
+         --[binOp AssocRight "-o" (\e s -> Lolly e s]]
+binOp assoc op f = Text.Parsec.Expr.Infix (do{ reservedOp op;ws;return f}) assoc
+typeParser = buildExpressionParser table typeParser'
+typeParser' = parens typeParser <|> tyUnit
+
+------------------------------------------------------------------------
+-- Term parsers							      --
+------------------------------------------------------------------------
+termParser = undefined
+
+
+

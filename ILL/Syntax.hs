@@ -12,8 +12,9 @@ import Data.List
 import Unbound.LocallyNameless 
 import Unbound.LocallyNameless.Alpha
 
-data Type = 
-    Lolly Type Type
+data Type =
+    UnitTy 
+  | Lolly Type Type
   | TensorTy Type Type
   deriving (Show, Eq)
 

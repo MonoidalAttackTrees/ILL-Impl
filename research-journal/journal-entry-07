@@ -1,0 +1,14 @@
+Week of 27 June 2016
+Journal Entry 07
+
+Monday 27 June 2016
+
+ Built meaningful App term cases, ran it through mainEval function successfully. Issue with mainPres, however. Need to see if it is an input problem or if function is wrong. Tried unsuccessfully to make good Rec cases. Got some help on the recursive case, although I still have a question about defining values for m, n in 
+
+ fun n : Nat => fun m : Nat => rec n with m || (fun r : Nat => fun p : Nat => suc r)
+
+mainCheck works on simple functions! mainEval works! Problem with mainPres / typePres remains.
+
+Tuesday 28 June 2016
+
+ Started ILL-Impl Syntax, Parser, and Pretty. Foundation has been laid, just need to make sure Syntax covers everything I need it to cover (not counting the 4 rules that I skipped), figure out how to adapt the parser, and the pretty printer.

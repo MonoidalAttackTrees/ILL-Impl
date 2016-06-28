@@ -25,14 +25,14 @@ import Eval
 -- These functions are used for testing.			      --
 ------------------------------------------------------------------------
 ctx1 :: Ctx
-ctx1 = parseCtx $ "a : Nat, b : Nat" 
+ctx1 = parseCtx $ "a : Nat, b : Nat"
 
 -- \y.y+3
 func0 = parseTerm $ "fun y : Nat => suc suc suc y"
 
 -- app \x.x+2 1
 appTerm0 = runEval tm
- where tm = parseTerm $ "app fun x : Nat => (suc suc x) to suc 0" 
+ where tm = parseTerm $ "app (fun x : Nat => (suc suc x)) to suc 0" 
 
 -- app \y.y+3 3
 appTerm1 = runEval tm
@@ -41,8 +41,15 @@ appTerm1 = runEval tm
 recTerm0 = runEval tm
  where tm = parseTerm $ "rec (suc suc 0) with (suc suc suc 0) || fun x : Nat => suc x"
 
---recTerm1 = runEval tm
--- where tm = parseTerm $ "rec (suc suc suc 0) with (suc suc 0) || (fun bv1 : Nat => -- (fun bv2 : (Nat -> Nat) => (fun bv3 : Nat => (suc 0))))"
+t0 = parseTerm $ "suc suc suc 0" -- recurse 3 times
+t1 = parseTerm $ "fun x : Nat => suc x"
+t2 = parseTerm $ ""
+
+recTerm1 = runEval tm
+ where tm = parseTerm $ "rec (suc 0) with (suc 0) || (fun x : Nat -> Nat => fun y : Nat => suc z)"
+
+recTerm2 = runEval tm
+ where tm = parseTerm $ "fun n : Nat => fun m : Nat => rec n with m || (fun r : Nat => fun p : Nat => suc r)"
 ------------------------------------------------------------------------
 
 mainCheck :: IO ()

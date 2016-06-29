@@ -17,7 +17,7 @@ import Data.Functor.Identity
 import Syntax
 
 lexer = haskellStyle {
-  Token.reservedOpNames = ["let", "be", "in", "for", "as", "(x)", "*", "-o", 				   "promote", "discard", "derelict", "copy", "unit" ] }
+  Token.reservedOpNames = ["let", "be", "in", "for", "as", "(x)", "*", "-o", "\\", 				   "promote", "discard", "derelict", "copy", "unit" ] }
 
 tokenizer = Token.makeTokenParser lexer
 
@@ -42,23 +42,70 @@ tyUnit = do
  reservedOp "unit"
  return UnitTy
 
-tyLolly = undefined
+tyLolly = do
+ ty1 <- typeParser
+ ws
+ reservedOp "-o"
+ ws
+ ty2 <- typeParser
+ return $ Lolly ty1 ty2
 
-tyTensor = undefined
+tyTensor = do
+ ty1 <- typeParser
+ ws
+ reservedOp "(x)"
+ ws
+ ty2 <- typeParser
+ return $ TensorTy ty1 ty2
 
 ------------------------------------------------------------------------
 -- Parse tables							      --
 ------------------------------------------------------------------------
-table = [[binOp AssocRight "(x)" (\d r -> TensorTy d r)]]
-         --[binOp AssocRight "-o" (\e s -> Lolly e s]]
+table = [[binOp AssocRight "(x)" (\d r -> TensorTy d r)],
+         [binOp AssocLeft "-o" (\e s -> Lolly e s)]]
 binOp assoc op f = Text.Parsec.Expr.Infix (do{ reservedOp op;ws;return f}) assoc
 typeParser = buildExpressionParser table typeParser'
 typeParser' = parens typeParser <|> tyUnit
-
 ------------------------------------------------------------------------
 -- Term parsers							      --
 ------------------------------------------------------------------------
-termParser = undefined
+termParser = ws >> (parens termParser' <|> termParser')
+termParser' = lamParse <|> appParse <|> unitParse <|> var
 
+var = var' varName Var
+var' p c = do 
+    var_name <- p
+    return (c var_name)  
 
+varName = varName' isUpper "Term variables must begin with a lowercase letter."
+varName' p msg = do
+    n <- many alphaNum
+    ws
+    when ((length n) > 0) $
+     let h = head n in 
+       when (p h || isNumber h) $ unexpColon (n++" : "++msg)
+    return . s2n $ n
 
+unitParse = do
+    reservedOp "*"
+    return Unit
+
+lamParse = do
+    reservedOp "\\"
+    name <- varName
+    dot
+    body <- termParser
+    colon
+    ty <- typeParser
+    return $ Lam ty . bind name $ body
+
+appParse = do
+    tm1 <- termParser
+    ws
+    tm2 <- termParser
+    return . App tm1 $ tm2
+
+promoParse = undefined
+weakParse = undefined
+contraParse = undefined
+dereParse = undefined

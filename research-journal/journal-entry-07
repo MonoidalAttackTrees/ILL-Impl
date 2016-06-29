@@ -12,3 +12,9 @@ mainCheck works on simple functions! mainEval works! Problem with mainPres / typ
 Tuesday 28 June 2016
 
  Started ILL-Impl Syntax, Parser, and Pretty. Foundation has been laid, just need to make sure Syntax covers everything I need it to cover (not counting the 4 rules that I skipped), figure out how to adapt the parser, and the pretty printer.
+
+Wednesday 29 June 2016
+
+ Work on parser is progessing. L/R associations for lolly and tensor should be good. Added lambda, app, var (from RecCalc), and unit term parsers. Added lolly, tensor, unit type parsers (not 100% sure I implemented them correctly). Leaving the LL operators alone for now, until I learn them better.
+
+ Don't know if I can use termParser on a list of terms (i.e. the first two arguments of promote). Do we need to add a list of term parser?

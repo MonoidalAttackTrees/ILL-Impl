@@ -5,7 +5,14 @@
 -- This file contains the syntax and syntax manipulators of ILL-Impl. --
 ------------------------------------------------------------------------
 
-module Syntax where
+module Syntax (module Unbound.LocallyNameless,
+               module Unbound.LocallyNameless.Alpha,
+	       TmName,
+               Type(..),
+               Term(..),
+               replace,
+               replaceTest,
+               n2s) where
 
 import Prelude
 import Data.List

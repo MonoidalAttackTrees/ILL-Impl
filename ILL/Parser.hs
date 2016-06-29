@@ -17,7 +17,8 @@ import Data.Functor.Identity
 import Syntax
 
 lexer = haskellStyle {
-  Token.reservedOpNames = ["let", "be", "in", "for", "as", "(x)", "*", "-o", "\\", 				   "promote", "discard", "derelict", "copy", "unit" ] }
+  Token.reservedOpNames = ["let", "be", "in", "for", "as", "(x)", 
+			   "unit", "-o", "\\"] }
 
 tokenizer = Token.makeTokenParser lexer
 
@@ -40,7 +41,7 @@ unexpColon msg = unexpected msg
 ------------------------------------------------------------------------
 tyUnit = do
  reservedOp "unit"
- return UnitTy
+ return I
 
 tyLolly = do
  ty1 <- typeParser
@@ -87,7 +88,7 @@ varName' p msg = do
     return . s2n $ n
 
 unitParse = do
-    reservedOp "*"
+    reservedOp "unit"
     return Unit
 
 lamParse = do
@@ -99,13 +100,4 @@ lamParse = do
     ty <- typeParser
     return $ Lam ty . bind name $ body
 
-appParse = do
-    tm1 <- termParser
-    ws
-    tm2 <- termParser
-    return . App tm1 $ tm2
-
-promoParse = undefined
-weakParse = undefined
-contraParse = undefined
-dereParse = undefined
+appParse = undefined

@@ -20,7 +20,7 @@ import Unbound.LocallyNameless
 import Unbound.LocallyNameless.Alpha
 
 data Type =
-    UnitTy 
+    I 
   | Lolly Type Type
   | TensorTy Type Type
   deriving (Show, Eq)
@@ -33,11 +33,8 @@ data Term =
   | App Term Term
   | Tensor Term Term
   | Unit
-  | Let Term Term Term
-  | Derelict Term
-  | Discard Term Term
-  | Promote [Term] [Term] Term
-  | Copy Term (Term,Term) Term
+  | LetU Term Term
+  | LetT Term (Bind TmName (Bind TmName Term))
   deriving (Show)
 
 -- Machinery from RecCalc syntax

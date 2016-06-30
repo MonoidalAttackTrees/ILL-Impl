@@ -100,4 +100,10 @@ lamParse = do
     ty <- typeParser
     return $ Lam ty . bind name $ body
 
-appParse = undefined
+appParse = do
+    l <- many termParser
+    case l of
+        [] -> fail "No term to App"
+        _  ->return $ foldl1 App l
+      
+ 

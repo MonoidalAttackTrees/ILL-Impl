@@ -52,9 +52,4 @@ prettyTerm (Let t1 t2 t3) = do
    t2' <- prettyTerm t2
    t3' <- prettyTerm t3
    return $ "let " ++ t1' ++ " be " ++ t2' ++ " in " ++ t3'
-prettyTerm (Derelict t) = undefined
-prettyTerm (Discard t1 t2) = undefined
-prettyTerm (Promote [t1] [t2] t3) = undefined
-prettyTerm (Copy t1 (t2a,t2b) t3) = undefined
-
 

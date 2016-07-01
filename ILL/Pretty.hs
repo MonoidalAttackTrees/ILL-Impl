@@ -17,6 +17,7 @@ import Parser
 -- prettyType converts a type into a string.                          --
 ------------------------------------------------------------------------
 prettyType :: Fresh m => Type -> m String
+prettyType I = return "I"
 prettyType (Lolly a b) = do
    a' <- prettyType a
    b' <- prettyType b
@@ -30,7 +31,8 @@ prettyType (TensorTy a b) = do
 -- prettyTerm converts a term into a string.                          --
 ------------------------------------------------------------------------
 prettyTerm :: Fresh m => Term -> m String
-prettyTerm Unit = return "*"
+prettyTerm Unit = do
+   return "unit"
 prettyTerm (Var n) = do
    let n' = n2s n
    return n'
@@ -47,5 +49,9 @@ prettyTerm (Tensor t1 t2) = do
    t1' <- prettyTerm t1
    t2' <- prettyTerm t2
    return $ t1' ++ " (x) " ++ t2'
-
+prettyTerm (LetU t1 t2) = do
+   t1' <- prettyTerm t1
+   t2' <- prettyTerm t2
+   return $ "let " ++ t1' ++ " be " ++ "unit " ++ "in " ++ t2'
+prettyTerm (LetT t1 t2) = undefined
 

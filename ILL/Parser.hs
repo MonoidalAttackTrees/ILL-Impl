@@ -105,5 +105,20 @@ appParse = do
     case l of
         [] -> fail "No term to App"
         _  ->return $ foldl1 App l
-      
- 
+
+------------------------------------------------------------------------
+-- Functions String -> Term or String -> Type			      --
+------------------------------------------------------------------------      
+parseTerm :: String -> Term
+parseTerm str = 
+    case parse termParser "" str of
+        Left e  -> error $ show e
+        Right r -> r
+
+parseType :: String -> Type
+parseType str = 
+    case parse typeParser "" str of
+        Left e  -> error $ show e
+        Right r -> r 
+
+

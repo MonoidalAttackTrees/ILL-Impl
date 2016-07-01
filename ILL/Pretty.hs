@@ -47,9 +47,5 @@ prettyTerm (Tensor t1 t2) = do
    t1' <- prettyTerm t1
    t2' <- prettyTerm t2
    return $ t1' ++ " (x) " ++ t2'
-prettyTerm (Let t1 t2 t3) = do
-   t1' <- prettyTerm t1
-   t2' <- prettyTerm t2
-   t3' <- prettyTerm t3
-   return $ "let " ++ t1' ++ " be " ++ t2' ++ " in " ++ t3'
+
 

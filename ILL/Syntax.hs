@@ -22,7 +22,7 @@ import Unbound.LocallyNameless.Alpha
 data Type =
     I 
   | Lolly Type Type
-  | TensorTy Type Type
+  | Tensor Type Type
   deriving (Show, Eq)
 
 type TmName = Name Term
@@ -31,13 +31,13 @@ data Term =
     Var TmName
   | Lam Type (Bind TmName Term)
   | App Term Term
-  | Tensor Term Term
+  | Tens Term Term
   | Unit
   | LetU Term Term
   | LetT Term (Bind TmName (Bind TmName Term))
   deriving (Show)
 
--- Machinery from RecCalc syntax
+-- TODO: Replace
 
 $(derive [''Term,''Type])
 instance Alpha Term
@@ -47,8 +47,6 @@ instance Subst Term Type
 instance Subst Term Term where
   isvar (Var x) = Just (SubstName x)
   isvar _ = Nothing
-
--- Variable subst from RecCalc
 
 replace :: Name Term -> Term -> Term -> Term        
 replace nm t t' = subst nm t t'

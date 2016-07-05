@@ -1,0 +1,8 @@
+Week of 4 July 2016
+Week #8
+
+Tuesday 5 July 2016
+
+   Work continues on pretty printer and parser. Only case that remains is LetT. Almost there. I know we have a lolly type, but do we need to have a lolly term? ex. if I know f :: A -o B, should I have a term f = a -o b where a, b are Terms of type A, B respectively?
+
+   Or is the lambda abstraction always of the type lolly A -o B?

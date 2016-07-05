@@ -11,7 +11,7 @@ import Text.Parsec
 import Text.Parsec.Expr
 import qualified Text.Parsec.Token as Token
 import Text.Parsec.Language
-import Control.Monad -- For debugging messages.
+import Control.Monad
 import Data.Functor.Identity
 
 import Syntax
@@ -57,12 +57,12 @@ tyTensor = do
  reservedOp "(x)"
  ws
  ty2 <- typeParser
- return $ TensorTy ty1 ty2
+ return $ Tensor ty1 ty2
 
 ------------------------------------------------------------------------
 -- Parse tables							      --
 ------------------------------------------------------------------------
-table = [[binOp AssocRight "(x)" (\d r -> TensorTy d r)],
+table = [[binOp AssocRight "(x)" (\d r -> Tensor d r)],
          [binOp AssocLeft "-o" (\e s -> Lolly e s)]]
 binOp assoc op f = Text.Parsec.Expr.Infix (do{ reservedOp op;ws;return f}) assoc
 typeParser = buildExpressionParser table typeParser'
@@ -120,5 +120,4 @@ parseType str =
     case parse typeParser "" str of
         Left e  -> error $ show e
         Right r -> r 
-
 

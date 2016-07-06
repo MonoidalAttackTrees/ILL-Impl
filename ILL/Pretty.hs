@@ -27,7 +27,7 @@ prettyType (Lolly a b) = do
 prettyType (Tensor a b) = do
    a' <- prettyType a
    b' <- prettyType b
-   return $ a' ++ " (x) " ++ b'
+   return $ a' ++ "(x)" ++ b'
 
 ------------------------------------------------------------------------
 -- prettyTerm converts a term into a string.                          --
@@ -45,13 +45,13 @@ prettyTerm (App t1 t2) = do
       _ -> return $ t1' ++ " " ++ t2'
 prettyTerm (Lam ty t) = do
    (n,tm) <- unbind t
-   str <- prettyTerm tm
+   tm' <- prettyTerm tm
    tystr <- prettyType ty
-   return $ "\\" ++ (n2s n) ++ " : " ++ tystr ++ "." ++ "(" ++ str ++ ")"
+   return $ "\\(" ++ (n2s n) ++ ":" ++ tystr ++ ")." ++ tm'
 prettyTerm (Tens t1 t2) = do
    t1' <- prettyTerm t1
    t2' <- prettyTerm t2
-   return $ t1' ++ " (x) " ++ t2'
+   return $ t1' ++ "(x)" ++ t2'
 prettyTerm (LetU t1 t2) = do
    t1' <- prettyTerm t1
    t2' <- prettyTerm t2

@@ -37,8 +37,6 @@ data Term =
   | LetT Term (Bind TmName (Bind TmName Term))
   deriving (Show)
 
--- TODO: Replace
-
 $(derive [''Term,''Type])
 instance Alpha Term
 instance Alpha Type

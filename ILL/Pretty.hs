@@ -41,8 +41,15 @@ prettyTerm (App t1 t2) = do
    t1' <- prettyTerm t1
    t2' <- prettyTerm t2
    case t1 of
-      (Lam _ _) -> return $ "(" ++ t1' ++ ")" ++ " " ++ t2'
-      _ -> return $ t1' ++ " " ++ t2'
+      (App _ _) -> case t2 of
+                      Unit -> return $ t1' ++ " " ++ t2'
+                      _ -> return $ t1' ++ " (" ++ t2' ++ ")"
+      Unit      -> case t2 of 
+                      Unit -> return $ t1' ++ " " ++ t2'
+                      _ -> return $ t1' ++ " (" ++ t2' ++ ")" 
+      _         -> case t2 of 
+                      Unit -> return $ "(" ++ t1' ++ ") " ++ t2'
+                      _ -> return $ "(" ++ t1' ++ ") " ++ " (" ++ t2' ++ ")"
 prettyTerm (Lam ty t) = do
    (n,tm) <- unbind t
    tm' <- prettyTerm tm

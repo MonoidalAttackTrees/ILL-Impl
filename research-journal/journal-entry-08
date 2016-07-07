@@ -13,3 +13,9 @@ Tuesday 5 July 2016
 Wednesday 6 July 2016
 
    Added parens case for App, Lolly, Lam to avoid incorrect parsing. Change of derive machinery in Syntax.hs not implemented yet.
+
+Thursday 7 July 2016
+
+   Addressed final parens issue in Pretty Printer, primarily App case. Syntax.hs and Pretty.hs are complete (barring any issue in testing once Parser is done).
+
+   LetT case in Parser remains, testing begins.

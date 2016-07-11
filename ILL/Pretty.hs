@@ -71,3 +71,24 @@ prettyTerm (LetT t1 t2) = do
    let y' = n2s y
    newtm <- prettyTerm tm'
    return $ "let " ++ t1' ++ " be " ++ x' ++ "(x)" ++ y' ++ " in " ++ newtm
+------------------------------------------------------------------------
+-- Testing functions                                                  --
+------------------------------------------------------------------------
+testPretty parser pretty s = do
+  let o = parse parser "" s in  
+    case o of
+      Left e -> error $ show e
+      Right r -> runFreshM (pretty r)
+
+testPrettyType :: String -> String
+testPrettyType = testPretty typeParser prettyType
+
+testPrettyTerm :: String -> String
+testPrettyTerm = testPretty termParser prettyTerm
+
+runPrettyType :: Type -> String
+runPrettyType = runFreshM.prettyType
+
+runPrettyTerm :: Term -> String
+runPrettyTerm = runFreshM.prettyTerm
+

@@ -35,44 +35,30 @@ natural    = Token.natural tokenizer
 dot        = Token.dot tokenizer
 comma      = Token.comma tokenizer
 colon      = Token.colon tokenizer
+symbol     = Token.symbol tokenizer
 
 unexpColon msg = unexpected msg
 ------------------------------------------------------------------------
 -- Type Parsers							      --
 ------------------------------------------------------------------------
---parseConst s c = Token.symbol s >> return c
 tyUnit = do
  reservedOp "I"
- --Token.symbol tokenizer "I"
  return I
 
-tyLolly = do
- ty1 <- typeParser
- --Token.symbol tokenizer "-o" 
- reservedOp "-o"
- ty2 <- typeParser
- return $ Lolly ty1 ty2
-
-tyTensor = do
- ty1 <- typeParser
- ws
- reservedOp "(x)"
- ws
- ty2 <- typeParser
- return $ Tensor ty1 ty2
 ------------------------------------------------------------------------
 -- Parse tables							      --
 ------------------------------------------------------------------------
-table = [[binOp AssocRight "(x)" (\d r -> Tensor d r)],
-         [binOp AssocLeft "-o" (\d r -> Lolly d r)]]
+table = [[binOp AssocLeft "(x)" (\d r -> Tensor d r)],
+         [binOp AssocRight "-o" (\d r -> Lolly d r)]]
 binOp assoc op f = Text.Parsec.Expr.Infix (do{ reservedOp op;ws;return f}) assoc
 typeParser = buildExpressionParser table typeParser'
-typeParser' = parens typeParser <|> tyUnit <|> tyLolly <|> tyTensor 
+typeParser' = parens typeParser <|> tyUnit
+
 ------------------------------------------------------------------------
 -- Term parsers							      --
 ------------------------------------------------------------------------
-termParser = ws >> (parens termParser' <|> termParser')
-termParser' = unitParse <|> letUParse <|> letTParse <|> lamParse <|> appParse <|> var
+aterm = parens termParser <|> unitParse <|> var 
+termParser = lamParse <|> letUParse <|> letTParse <|> appParse <?> "Parser error"
 
 var = var' varName Var
 var' p c = do 
@@ -81,7 +67,7 @@ var' p c = do
 
 varName = varName' isUpper "Term variables must begin with a lowercase letter."
 varName' p msg = do
-    n <- many alphaNum
+    n <- many1 alphaNum
     ws
     when ((length n) > 0) $
      let h = head n in 
@@ -94,40 +80,34 @@ unitParse = do
 
 lamParse = do
     reservedOp "\\"
+    symbol "("               
     name <- varName
-    dot
-    body <- termParser
     colon
     ty <- typeParser
+    symbol ")"
+    dot
+    body <- termParser    
     return $ Lam ty . bind name $ body
 
 appParse = do
-    l <- many termParser
+    l <- many aterm
     case l of
         [] -> fail "No term to App"
         _  -> return $ foldl1 App l
 
 letUParse = do
     reservedOp "let"
-    ws
     t1 <- termParser
-    ws
-    reservedOp "be"
-    ws
-    reservedOp "unit"
-    ws
+    reservedOp "="
+    _ <- unitParse
     reservedOp "in"
-    ws
     t2 <- termParser
     return $ LetU t1 t2
 
 letTParse = do
     reservedOp "let"
-    ws
     t1 <- termParser
-    ws
-    reservedOp "Be"
-    ws
+    reservedOp "="
     x <- termParser
     reservedOp "(x)"
     y <- termParser
@@ -135,6 +115,7 @@ letTParse = do
     reservedOp "in"   
     t2 <- termParser
     return $ LetT t1 (bind (s2n "x") (bind (s2n "y") t2))
+
 ------------------------------------------------------------------------
 -- Functions String -> Term or String -> Type			      --
 ------------------------------------------------------------------------      

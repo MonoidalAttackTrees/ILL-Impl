@@ -1,4 +1,5 @@
-{-# LANGUAGE NoMonomorphismRestriction, PackageImports #-}
+{-# LANGUAGE NoMonomorphismRestriction, PackageImports,
+             FlexibleContexts, PackageImports #-}
 ------------------------------------------------------------------------
 -- This file contains the ILL-Impl parsers utilizing Parsec library.  --
 ------------------------------------------------------------------------
@@ -18,7 +19,7 @@ import Syntax
 
 lexer = haskellStyle {
   Token.reservedOpNames = ["let", "be", "in", "for", "as", "(x)", 
-			   "unit", "-o", "\\"] }
+			   "unit", "-o", "\\", "I"] }
 
 tokenizer = Token.makeTokenParser lexer
 
@@ -39,15 +40,16 @@ unexpColon msg = unexpected msg
 ------------------------------------------------------------------------
 -- Type Parsers							      --
 ------------------------------------------------------------------------
+--parseConst s c = Token.symbol s >> return c
 tyUnit = do
- reservedOp "unit"
+ reservedOp "I"
+ --Token.symbol tokenizer "I"
  return I
 
 tyLolly = do
  ty1 <- typeParser
- ws
+ --Token.symbol tokenizer "-o" 
  reservedOp "-o"
- ws
  ty2 <- typeParser
  return $ Lolly ty1 ty2
 
@@ -58,20 +60,19 @@ tyTensor = do
  ws
  ty2 <- typeParser
  return $ Tensor ty1 ty2
-
 ------------------------------------------------------------------------
 -- Parse tables							      --
 ------------------------------------------------------------------------
 table = [[binOp AssocRight "(x)" (\d r -> Tensor d r)],
-         [binOp AssocLeft "-o" (\e s -> Lolly e s)]]
+         [binOp AssocLeft "-o" (\d r -> Lolly d r)]]
 binOp assoc op f = Text.Parsec.Expr.Infix (do{ reservedOp op;ws;return f}) assoc
 typeParser = buildExpressionParser table typeParser'
-typeParser' = parens typeParser <|> tyUnit
+typeParser' = parens typeParser <|> tyUnit <|> tyLolly <|> tyTensor 
 ------------------------------------------------------------------------
 -- Term parsers							      --
 ------------------------------------------------------------------------
 termParser = ws >> (parens termParser' <|> termParser')
-termParser' = lamParse <|> appParse <|> unitParse <|> var
+termParser' = unitParse <|> letUParse <|> letTParse <|> lamParse <|> appParse <|> var
 
 var = var' varName Var
 var' p c = do 
@@ -104,8 +105,36 @@ appParse = do
     l <- many termParser
     case l of
         [] -> fail "No term to App"
-        _  ->return $ foldl1 App l
+        _  -> return $ foldl1 App l
 
+letUParse = do
+    reservedOp "let"
+    ws
+    t1 <- termParser
+    ws
+    reservedOp "be"
+    ws
+    reservedOp "unit"
+    ws
+    reservedOp "in"
+    ws
+    t2 <- termParser
+    return $ LetU t1 t2
+
+letTParse = do
+    reservedOp "let"
+    ws
+    t1 <- termParser
+    ws
+    reservedOp "Be"
+    ws
+    x <- termParser
+    reservedOp "(x)"
+    y <- termParser
+    ws
+    reservedOp "in"   
+    t2 <- termParser
+    return $ LetT t1 (bind (s2n "x") (bind (s2n "y") t2))
 ------------------------------------------------------------------------
 -- Functions String -> Term or String -> Type			      --
 ------------------------------------------------------------------------      
@@ -119,5 +148,9 @@ parseType :: String -> Type
 parseType str = 
     case parse typeParser "" str of
         Left e  -> error $ show e
-        Right r -> r 
+        Right r -> r
 
+parseTester p str = 
+    case parse p "" str of
+        Left e -> error $ show e
+        Right r -> r 

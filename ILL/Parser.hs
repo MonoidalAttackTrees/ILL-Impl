@@ -18,8 +18,8 @@ import Data.Functor.Identity
 import Syntax
 
 lexer = haskellStyle {
-  Token.reservedOpNames = ["let", "be", "in", "for", "as", "(x)", 
-			   "unit", "-o", "\\", "I"] }
+  Token.reservedNames = ["let", "be", "in", "for", "as", "unit", "I"],
+  Token.reservedOpNames = ["(x)", "unit", "-o", "\\"] }
 
 tokenizer = Token.makeTokenParser lexer
 
@@ -36,6 +36,7 @@ dot        = Token.dot tokenizer
 comma      = Token.comma tokenizer
 colon      = Token.colon tokenizer
 symbol     = Token.symbol tokenizer
+identifier = Token.identifier tokenizer
 
 unexpColon msg = unexpected msg
 ------------------------------------------------------------------------
@@ -48,16 +49,16 @@ tyUnit = do
 ------------------------------------------------------------------------
 -- Parse tables							      --
 ------------------------------------------------------------------------
-table = [[binOp AssocLeft "(x)" (\d r -> Tensor d r)],
+tyTable = [[binOp AssocLeft "(x)" (\d r -> Tensor d r)],
          [binOp AssocRight "-o" (\d r -> Lolly d r)]]
-binOp assoc op f = Text.Parsec.Expr.Infix (do{ reservedOp op;ws;return f}) assoc
-typeParser = buildExpressionParser table typeParser'
+binOp assoc op f = Text.Parsec.Expr.Infix (do{ reservedOp op;return f}) assoc
+typeParser = buildExpressionParser tyTable typeParser'
 typeParser' = parens typeParser <|> tyUnit
 
 ------------------------------------------------------------------------
 -- Term parsers							      --
 ------------------------------------------------------------------------
-aterm = parens termParser <|> unitParse <|> var 
+aterm = parens termParser <|> unitParse <|> var
 termParser = lamParse <|> letUParse <|> letTParse <|> appParse <?> "Parser error"
 
 var = var' varName Var
@@ -67,19 +68,18 @@ var' p c = do
 
 varName = varName' isUpper "Term variables must begin with a lowercase letter."
 varName' p msg = do
-    n <- many1 alphaNum
-    ws
+    n <- identifier
     when ((length n) > 0) $
      let h = head n in 
        when (p h || isNumber h) $ unexpColon (n++" : "++msg)
     return . s2n $ n
 
 unitParse = do
-    reservedOp "unit"
+    reserved "unit"
     return Unit
 
 lamParse = do
-    reservedOp "\\"
+    reserved "\\"
     symbol "("               
     name <- varName
     colon
@@ -90,29 +90,30 @@ lamParse = do
     return $ Lam ty . bind name $ body
 
 appParse = do
-    l <- many aterm
-    case l of
-        [] -> fail "No term to App"
-        _  -> return $ foldl1 App l
+    l <- many1 aterm    
+    return $ foldl1 App l
 
+-- The parser for the tensor product of terms:
+tmTable = [[binOp AssocLeft "(x)" (\d r -> Tens d r)]]
+tensParser = buildExpressionParser tmTable aterm              
+              
 letUParse = do
-    reservedOp "let"
+    reserved "let"
     t1 <- termParser
-    reservedOp "="
-    _ <- unitParse
-    reservedOp "in"
+    reserved "be"
+    reserved "unit"
+    reserved "in"
     t2 <- termParser
     return $ LetU t1 t2
 
 letTParse = do
-    reservedOp "let"
+    reserved "let"
     t1 <- termParser
-    reservedOp "="
+    reserved "be"
     x <- termParser
     reservedOp "(x)"
     y <- termParser
-    ws
-    reservedOp "in"   
+    reserved "in"   
     t2 <- termParser
     return $ LetT t1 (bind (s2n "x") (bind (s2n "y") t2))
 

@@ -7,7 +7,7 @@
 
 module Syntax (module Unbound.LocallyNameless,
                module Unbound.LocallyNameless.Alpha,
-	       TmName,
+               TmName,
                Type(..),
                Term(..),
                replace,

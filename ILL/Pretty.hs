@@ -46,6 +46,10 @@ prettyTerm (App t1 t2) = do
                       _ -> return $ t1' ++ " (" ++ t2' ++ ")"
       Unit      -> case t2 of 
                       Unit -> return $ t1' ++ " " ++ t2'
+                      _ -> return $ t1' ++ " (" ++ t2' ++ ")"
+      Var _     -> case t2 of
+                      Unit -> return $ t1' ++ " " ++ t2'
+                      Var _ -> return $ t1' ++ " " ++ t2'
                       _ -> return $ t1' ++ " (" ++ t2' ++ ")" 
       _         -> case t2 of 
                       Unit -> return $ "(" ++ t1' ++ ") " ++ t2'

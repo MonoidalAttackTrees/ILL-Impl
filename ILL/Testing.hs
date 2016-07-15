@@ -32,20 +32,22 @@ lamtest7 = parseTester lamParse "\\(x:(I -o I)(x)(I -o I)).y z"
 lamtest8 = parseTester lamParse "\\(x:(I -o I)(x)(I -o I)).y unit (x) unit"
 -- unsuccessful; bad parse
 
+lamtest8' = parseTester lamParse "\\(x:(I -o I)(x)(I -o I)).y unit(x)unit"
+
 lamtest9 = parseTester lamParse "\\(x:(I -o I)(x)(I -o I)).y (unit (x) unit)"
 -- unsuccesful; tries to parse App Unit (var x)
 
 lamtest10 = parseTester lamParse "\\(x:(I -o I)(x)(I -o I)).y (unit(x)unit)"
 
 main = do
- putStrLn $ runPrettyTerm $ lamtest0
- putStrLn $ runPrettyTerm $ lamtest1
- -- putStrLn $ runPrettyTerm $ lamtest2
- putStrLn $ runPrettyTerm $ lamtest3
- putStrLn $ runPrettyTerm $ lamtest4
- putStrLn $ runPrettyTerm $ lamtest5
- putStrLn $ runPrettyTerm $ lamtest6
- putStrLn $ runPrettyTerm $ lamtest7 
- putStrLn $ runPrettyTerm $ lamtest8
- putStrLn $ runPrettyTerm $ lamtest9
- putStrLn $ runPrettyTerm $ lamtest10
+  putStrLn $ "lamtest0: " ++ (runPrettyTerm $ lamtest0)
+  putStrLn $ "lamtest1: " ++ (runPrettyTerm $ lamtest1)
+  -- putStrLn $ "lamtest2: " ++ (runPrettyTerm $ lamtest2)
+  putStrLn $ "lamtest3: " ++ (runPrettyTerm $ lamtest3)
+  putStrLn $ "lamtest4: " ++ (runPrettyTerm $ lamtest4)
+  putStrLn $ "lamtest5: " ++ (runPrettyTerm $ lamtest5)
+  putStrLn $ "lamtest6: " ++ (runPrettyTerm $ lamtest6)
+  putStrLn $ "lamtest7: " ++ (runPrettyTerm $ lamtest7)
+  putStrLn $ "lamtest8: " ++ (runPrettyTerm $ lamtest8) -- *need to eval this
+  putStrLn $ "lamtest9: " ++ (runPrettyTerm $ lamtest9)
+  putStrLn $ "lamtest10: " ++ (runPrettyTerm $ lamtest10)

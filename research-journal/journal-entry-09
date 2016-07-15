@@ -34,3 +34,5 @@ Thursday 14 July 2016
    Want to learn more about git in emacs.
 
 Friday 15 July 2016
+
+   Got an interactive compiler working in emacs! Extraneous parenthesis found in printer. When an App has a tensor for the 2nd arg with 'unit' as 1st arg to (x), ex. y unit(x)unit, printer acts like it is applying unit to y.

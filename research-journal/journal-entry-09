@@ -1,0 +1,36 @@
+Week of 11 July 2016
+Journal #09
+
+Monday 11 July 2016
+
+   Issues with parsing Lolly and Tensor types. I'm confident in the implementation of the type parsers. I don't fully understand the distinction between reservedOps, tokens/tokenizer, and symbols (from grady). I have a suspicion that the issue comes down to the binOp table and how a table is used in Parsec. 
+
+   Started working with emacs. Got haskell-mode installed.
+
+Tuesday 12 July 2016
+
+   Spent some time playing with symbol, trying to make the type parser work. Intuition about binOp being the reason my type parsers weren't working. They're redundant, I understand that the binary operations handle parsing those operators and don't require a seperate parser. Meeting helped with a lot of gaps in understanding Parsec.   
+
+Wednesday 13 July 2016
+
+   Discarded small changes after 2nd commit from prof. Unsure of 'reserved', I see reservedOps and reservedNames. Guessing that its a Parsec function. Will investigate.
+
+   It's a token/part of tokenizer. What is the advantage or difference between reserved, reservedOp, reservedName? I get the obvious difference and separation between operations and keywords/names. 
+
+   Started experimenting with emacs config file.
+
+Thursday 14 July 2016
+
+   Started more rigorous testing of parser and printer. When parsing lolly types, parser demands a ' ' before and after '-o' otherwise will fail. Do we want to keep this as a feature, or should we try and account for cases like 'I-oI' as parseable?
+
+   Detected and fixed small errors in printer, adding extra spaces and the like. App was adding an extra space when printed.
+
+   Getting better at using emacs. Got haskell-mode config'd to where I can open some sort of interactive compiler (I actually am not sure if I'm using ghc, ghc-mod, ghci, or cabal repl.) I'm trying to reverse engineer the emacs haskell-mode .emacs config file from github repo. Working on it.
+
+   Have a bug in .emacs haskell-mode config. Interactive compiler can't find imported modules/.hs files from same local dir. Been working in other editor until resolved.
+
+   Also realized something about multiplicative conjunction and disjoint union through product/sums. It's difficult to articulate what understanding I had before and what I realize now. The part in Ch.5 about deduction systems and the conjunction calculus also made me look at applied mathematics in a totally different way. Ideas like Wolfram Alpha are much more interesting (as in how it works). Rules of inference now have a more intuitive meaning to me as well.
+
+   Want to learn more about git in emacs.
+
+Friday 15 July 2016

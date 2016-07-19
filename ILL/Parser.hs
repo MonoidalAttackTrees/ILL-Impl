@@ -59,7 +59,7 @@ typeParser' = parens typeParser <|> tyUnit
 -- Term parsers							      --
 ------------------------------------------------------------------------
 aterm = parens termParser <|> unitParse <|> var
-termParser = lamParse <|> letUParse <|> letTParse <|> tensParse <|> appParse <?> "Parser error"
+termParser = lamParse <|> try letTParse <|> letUParse <|> tensParse <|> appParse <?> "Parser error"
 
 var = var' varName Var
 var' p c = do 
@@ -107,9 +107,9 @@ tensParse = do
           
 letUParse = do
     reserved "let"
-    t1 <- termParser
-    reserved "be"
     reserved "unit"
+    reservedOp "="
+    t1 <- termParser
     reserved "in"
     t2 <- termParser
     return $ LetU t1 t2
@@ -117,14 +117,14 @@ letUParse = do
 -- New letT parse convention
 letTParse = do
     reserved "let"
-    x <- termParser
+    x <- varName
     reservedOp "(x)"
-    y <- termParser
-    reservedOp "be"
+    y <- varName
+    reservedOp "="
     t1 <- termParser
     reserved "in"
     t2 <- termParser
-    return $ LetT t1 (bind (s2n "x") (bind (s2n "y") t2))
+    return $ LetT t1 (bind x (bind y t2))
 
 -- letTParse = do
 --     reserved "let"

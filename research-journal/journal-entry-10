@@ -1,0 +1,8 @@
+Week of 18 July 2016
+Journal #10
+
+Monday 18 July 2016
+
+   Changing parser for tensors from infix notation to a prefix notation. Keeping printer printing (x). Adapting test cases for new tensor notation. Working on LetI, U on switching pattern and input. Encountered some problems in parsing tens term. Parser wants to use "tens" as a variable name and the following terms as an application.
+
+Tuesday 19 July 2015

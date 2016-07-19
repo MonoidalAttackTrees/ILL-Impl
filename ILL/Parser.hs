@@ -101,6 +101,7 @@ appParse = do
 tensParse = do
    reserved "tens"
    t1 <- termParser
+   symbol ","
    t2 <- termParser
    return $ Tens t1 t2
           

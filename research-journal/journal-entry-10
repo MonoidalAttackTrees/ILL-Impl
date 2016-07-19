@@ -8,3 +8,5 @@ Monday 18 July 2016
 Tuesday 19 July 2015
 
    Still having issues with new tensor parser. Pattern-first LetT should be working okay except for the tensor. Should we change how the user enters a pattern in for LetT?
+
+   Migrated tensor to prefix notation after meeting with Dr. Eades. Updated printer to match parsing convention. Resolved pattern change in LetT terms.

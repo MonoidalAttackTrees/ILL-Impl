@@ -18,8 +18,8 @@ import Data.Functor.Identity
 import Syntax
 
 lexer = haskellStyle {
-  Token.reservedNames = ["let", "be", "in", "for", "as", "unit", "I", "tens"],
-  Token.reservedOpNames = ["(x)", "unit", "-o", "\\"] }
+  Token.reservedNames = ["let", "be", "in", "for", "as", "unit", "I"],
+  Token.reservedOpNames = ["(x)", "tens", "-o", "\\"] }
 
 tokenizer = Token.makeTokenParser lexer
 
@@ -93,11 +93,6 @@ appParse = do
     l <- many1 aterm    
     return $ foldl1 App l
 
--- The parser for the tensor product of terms:
--- tmTable = [[binOp AssocLeft "(x)" (\d r -> Tens d r)]]
--- tensParser = buildExpressionParser tmTable aterm              
-
--- prefix notation for Tensor (replaces (x))
 tensParse = do
    reserved "tens"
    t1 <- termParser
@@ -114,7 +109,6 @@ letUParse = do
     t2 <- termParser
     return $ LetU t1 t2
 
--- New letT parse convention
 letTParse = do
     reserved "let"
     x <- varName
@@ -125,18 +119,6 @@ letTParse = do
     reserved "in"
     t2 <- termParser
     return $ LetT t1 (bind x (bind y t2))
-
--- letTParse = do
---     reserved "let"
---     t1 <- termParser
---     reserved "be"
---     x <- termParser
---     reservedOp "(x)"
---     y <- termParser
---     reserved "in"   
---     t2 <- termParser
---     return $ LetT t1 (bind (s2n "x") (bind (s2n "y") t2))
-
 ------------------------------------------------------------------------
 -- Functions String -> Term or String -> Type			      --
 ------------------------------------------------------------------------      

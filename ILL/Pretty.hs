@@ -62,11 +62,11 @@ prettyTerm (Lam ty t) = do
 prettyTerm (Tens t1 t2) = do
    t1' <- prettyTerm t1
    t2' <- prettyTerm t2
-   return $ t1' ++ "(x)" ++ t2'
+   return $ "(tens " ++ t1' ++ "," ++ t2' ++ ")"
 prettyTerm (LetU t1 t2) = do
    t1' <- prettyTerm t1
    t2' <- prettyTerm t2
-   return $ "let " ++ t1' ++ " be " ++ "unit " ++ "in " ++ t2'
+   return $ "let " ++ t1' ++ " = " ++ "unit " ++ "in " ++ t2'
 prettyTerm (LetT t1 t2) = do
    t1' <- prettyTerm t1
    (x, tm) <- unbind t2
@@ -74,7 +74,7 @@ prettyTerm (LetT t1 t2) = do
    let x' = n2s x
    let y' = n2s y
    newtm <- prettyTerm tm'
-   return $ "let " ++ t1' ++ " be " ++ x' ++ "(x)" ++ y' ++ " in " ++ newtm
+   return $ "let " ++ x' ++ "(x)" ++ y' ++ " = " ++ t1' ++ " in " ++ newtm
 ------------------------------------------------------------------------
 -- Testing functions                                                  --
 ------------------------------------------------------------------------

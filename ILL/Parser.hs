@@ -18,7 +18,7 @@ import Data.Functor.Identity
 import Syntax
 
 lexer = haskellStyle {
-  Token.reservedNames = ["let", "be", "in", "for", "as", "unit", "I"],
+  Token.reservedNames = ["let", "be", "in", "for", "as", "unit", "I", "tens"],
   Token.reservedOpNames = ["(x)", "unit", "-o", "\\"] }
 
 tokenizer = Token.makeTokenParser lexer
@@ -59,7 +59,7 @@ typeParser' = parens typeParser <|> tyUnit
 -- Term parsers							      --
 ------------------------------------------------------------------------
 aterm = parens termParser <|> unitParse <|> var
-termParser = lamParse <|> letUParse <|> letTParse <|> appParse <?> "Parser error"
+termParser = lamParse <|> letUParse <|> letTParse <|> tensParse <|> appParse <?> "Parser error"
 
 var = var' varName Var
 var' p c = do 
@@ -94,9 +94,16 @@ appParse = do
     return $ foldl1 App l
 
 -- The parser for the tensor product of terms:
-tmTable = [[binOp AssocLeft "(x)" (\d r -> Tens d r)]]
-tensParser = buildExpressionParser tmTable aterm              
-              
+-- tmTable = [[binOp AssocLeft "(x)" (\d r -> Tens d r)]]
+-- tensParser = buildExpressionParser tmTable aterm              
+
+-- prefix notation for Tensor (replaces (x))
+tensParse = do
+   reserved "tens"
+   t1 <- termParser
+   t2 <- termParser
+   return $ Tens t1 t2
+          
 letUParse = do
     reserved "let"
     t1 <- termParser
@@ -106,16 +113,28 @@ letUParse = do
     t2 <- termParser
     return $ LetU t1 t2
 
+-- New letT parse convention
 letTParse = do
     reserved "let"
-    t1 <- termParser
-    reserved "be"
     x <- termParser
     reservedOp "(x)"
     y <- termParser
-    reserved "in"   
+    reservedOp "be"
+    t1 <- termParser
+    reserved "in"
     t2 <- termParser
     return $ LetT t1 (bind (s2n "x") (bind (s2n "y") t2))
+
+-- letTParse = do
+--     reserved "let"
+--     t1 <- termParser
+--     reserved "be"
+--     x <- termParser
+--     reservedOp "(x)"
+--     y <- termParser
+--     reserved "in"   
+--     t2 <- termParser
+--     return $ LetT t1 (bind (s2n "x") (bind (s2n "y") t2))
 
 ------------------------------------------------------------------------
 -- Functions String -> Term or String -> Type			      --

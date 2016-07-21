@@ -50,13 +50,14 @@ handleCMD s =
       Right l -> handleLine l
   where
     handleLine :: REPLExpr -> REPLStateIO()
+
     handleLine (ShowAST t) = io.putStrLn.show $ t
     handleLine (Unfold t) = get >>= (\defs -> io.putStrLn.runPrettyTerm $ unfoldDefsInTerm defs t)
     handleLIne DumpState = get >>= io.print.(mapQ prettyDef)
      where
        prettyDef (x, t) = "let " ++ (n2s x) ++ " = " ++ (runPrettyTerm t)
 
-banner = "Welcome to ILL, an Intuitionistic Linear Logic programming language!\n\n"
+banner = "Welcome to Ill, an Intuitionistic Linear Logic programming language!\n\n"
 
 main = do
     putStr banner
@@ -64,10 +65,10 @@ main = do
       where
          loop :: InputT REPLStateIO ()
          loop = do
-                 minput <- getInputLine "ILL> "
+                 minput <- getInputLine "Ill> "
                  case minput of
                      Nothing -> return ()
                      Just input | input == ":q" || input == ":quit" ->
-                                  liftIO $ putStrLn "Exiting ILL." >> return ()
+                                  liftIO $ putStrLn "Exiting Ill." >> return ()
                                 | otherwise -> (lift.handleCMD $ input) >> loop
     

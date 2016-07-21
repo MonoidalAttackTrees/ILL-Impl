@@ -19,7 +19,8 @@ import Syntax
 
 lexer = haskellStyle {
   Token.reservedNames = ["let", "be", "in", "for", "as", "unit", "I"],
-  Token.reservedOpNames = ["(x)", "tens", "-o", "\\"] }
+  Token.reservedOpNames = ["(x)", "tens", "-o", "\\", ":s", ":show",
+                           ":t", ":type", ":u", ":unfold", ":d", ":dump"] }
 
 tokenizer = Token.makeTokenParser lexer
 

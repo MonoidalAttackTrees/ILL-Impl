@@ -7,9 +7,9 @@
 
 module Syntax (module Unbound.LocallyNameless,
                module Unbound.LocallyNameless.Alpha,
-               TmName,
                Type(..),
                Term(..),
+               TmName,
                replace,
                replaceTest,
                n2s) where

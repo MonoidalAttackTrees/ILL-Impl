@@ -18,3 +18,4 @@ Wednesday 20 July 2016
 Thursday 21 July 2016
 
    Implemented basic repl with small tweaks. Work in progress.
+   Expanded Repl, tweaked parser. Thinking about functionality I want to add (like grady's let, but an alternative?)

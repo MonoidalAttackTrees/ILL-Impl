@@ -5,8 +5,16 @@ Monday 18 July 2016
 
    Changing parser for tensors from infix notation to a prefix notation. Keeping printer printing (x). Adapting test cases for new tensor notation. Working on LetI, U on switching pattern and input. Encountered some problems in parsing tens term. Parser wants to use "tens" as a variable name and the following terms as an application.
 
-Tuesday 19 July 2015
+Tuesday 19 July 2016
 
    Still having issues with new tensor parser. Pattern-first LetT should be working okay except for the tensor. Should we change how the user enters a pattern in for LetT?
 
    Migrated tensor to prefix notation after meeting with Dr. Eades. Updated printer to match parsing convention. Resolved pattern change in LetT terms.
+
+Wednesday 20 July 2016
+
+   Studied grady's Repl, Functional Queue implementation, Repl additions to parser, Haskeline documentation, related monad concepts.
+
+Thursday 21 July 2016
+
+   Implemented basic repl with small tweaks. Work in progress.

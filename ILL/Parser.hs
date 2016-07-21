@@ -138,3 +138,45 @@ parseTester p str =
     case parse p "" str of
         Left e -> error $ show e
         Right r -> r 
+
+------------------------------------------------------------------------                 
+-- Parsers for the REPL                                               --
+------------------------------------------------------------------------
+data REPLExpr =
+   ShowAST Term
+ | DumpState
+ | Unfold Term
+ deriving Show
+
+replTermCmdParser short long c p = do
+  colon
+  cmd <- many lower
+  ws
+  t <- p
+  eof
+  if (cmd == long || cmd == short)
+  then return $ c t
+  else fail $ "Command \":"++cmd++"\" is unrecognized."
+
+replIntCmdParser short long c = do
+  colon
+  cmd <- many lower
+  ws
+  eof
+  if (cmd == long || cmd == short)
+  then return c
+  else fail $ "Command \":"++cmd++"\" is unrecognized."
+
+showASTParser = replTermCmdParser "s" "show" ShowAST termParser
+
+unfoldTermParser = replTermCmdParser "u" "unfold" Unfold termParser         
+
+dumpStateParser = replIntCmdParser "d" "dump" DumpState
+
+lineParser = try showASTParser <|> try unfoldTermParser <|> try dumpStateParser
+
+parseLine :: String -> Either String REPLExpr
+parseLine s = case (parse lineParser "" s) of
+                Left msg -> Left $ show msg
+                Right l -> Right l
+        

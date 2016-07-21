@@ -83,8 +83,10 @@ letu2 = parseTester letUParse "let unit = (a b) in \\(x:I -o I).y"
 ------------------------------------------------------------------------
 
 lett0 = parseTester letTParse "let x(x)y = unit in unit"
--- problem
+lett1 = parseTester letTParse "let a(x)b = \\(x:I).y z in zz"
 
+lett2 = parseTerm "let x(x)y = \\(l:I).m n in \\(o:I).p q"
+lett3 = parseTester letTParse "let x(x)y = \\(l:I).m n in \\(o:I).p q"
 ------------------------------------------------------------------------
 -- Main testing functions                        		      --
 ------------------------------------------------------------------------
@@ -118,6 +120,9 @@ letUmain = do
 
 letTmain = do
    putStrLn $ "lett0: " ++ (runPrettyTerm $ lett0)
+   putStrLn $ "lett1: " ++ (runPrettyTerm $ lett1)
+   putStrLn $ "lett2: " ++ (runPrettyTerm $ lett2)
+   putStrLn $ "lett3: " ++ (runPrettyTerm $ lett3)
 
 main = do
    lammain

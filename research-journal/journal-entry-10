@@ -19,3 +19,9 @@ Thursday 21 July 2016
 
    Implemented basic repl with small tweaks. Work in progress.
    Expanded Repl, tweaked parser. Thinking about functionality I want to add (like grady's let, but an alternative?)
+
+Friday 22 July 2016
+    
+   Added top-level Let expression. Working on a parser that will recognize when a variable in the Queue is entered to the Repl and :show it (maybe thru printer?).
+
+   Working a little on TypeCheck as well, I want to use :t and :type in Repl.

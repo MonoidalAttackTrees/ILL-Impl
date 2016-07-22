@@ -21,8 +21,7 @@ instance MonadException m => MonadException (StateT s m) where
 
 io :: IO a -> REPLStateIO a
 io i = liftIO i
-    
---pop :: REPLStateIO (Vnm, Term)
+
 pop :: REPLStateIO (TmName, Term)
 pop = get >>= return.headQ
 
@@ -50,13 +49,14 @@ handleCMD s =
       Right l -> handleLine l
   where
     handleLine :: REPLExpr -> REPLStateIO()
-
+    handleLine (Let x t) = push (x,t)
     handleLine (ShowAST t) = io.putStrLn.show $ t
     handleLine (Unfold t) = get >>= (\defs -> io.putStrLn.runPrettyTerm $ unfoldDefsInTerm defs t)
     handleLIne DumpState = get >>= io.print.(mapQ prettyDef)
      where
        prettyDef (x, t) = "let " ++ (n2s x) ++ " = " ++ (runPrettyTerm t)
 
+banner :: String
 banner = "Welcome to Ill, an Intuitionistic Linear Logic programming language!\n\n"
 
 main = do

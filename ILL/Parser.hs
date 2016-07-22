@@ -41,14 +41,13 @@ identifier = Token.identifier tokenizer
 
 unexpColon msg = unexpected msg
 ------------------------------------------------------------------------
--- Type Parsers							      --
+-- Type parsers							      --
 ------------------------------------------------------------------------
 tyUnit = do
  reservedOp "I"
  return I
-
 ------------------------------------------------------------------------
--- Parse tables							      --
+-- Type parse tables				         	      --
 ------------------------------------------------------------------------
 tyTable = [[binOp AssocLeft "(x)" (\d r -> Tensor d r)],
          [binOp AssocRight "-o" (\d r -> Lolly d r)]]
@@ -139,15 +138,41 @@ parseTester p str =
     case parse p "" str of
         Left e -> error $ show e
         Right r -> r 
+------------------------------------------------------------------------
+-- Context parser                                                     --
+------------------------------------------------------------------------
+
+tmPairCtxParse = do
+  nm <- varName
+  ws
+  colon
+  ws
+  ty <- typeParser
+  ws
+  return (nm, ty)
+
+tmCtxParse = tmPairCtxParse `sepBy` (Token.symbol tokenizer ",")
 
 ------------------------------------------------------------------------                 
 -- Parsers for the REPL                                               --
 ------------------------------------------------------------------------
 data REPLExpr =
-   ShowAST Term
+   Let TmName Term
+ | ShowAST Term
  | DumpState
  | Unfold Term
  deriving Show
+
+letParser = do
+  reservedOp "let"
+  n <- varName
+  symbol "="
+  t <- termParser
+  eof
+  return $ Let n t         
+
+-- If var is already in queue, show var
+varParser = undefined
 
 replTermCmdParser short long c p = do
   colon
@@ -174,7 +199,7 @@ unfoldTermParser = replTermCmdParser "u" "unfold" Unfold termParser
 
 dumpStateParser = replIntCmdParser "d" "dump" DumpState
 
-lineParser = try showASTParser <|> try unfoldTermParser <|> try dumpStateParser
+lineParser = letParser <|> try showASTParser <|> try unfoldTermParser <|> try dumpStateParser
 
 parseLine :: String -> Either String REPLExpr
 parseLine s = case (parse lineParser "" s) of

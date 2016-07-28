@@ -51,16 +51,13 @@ unfoldQueue q = fixQ q emptyQ step
       substDef x t (y, t') = (y, subst x t t')
 
 -- check if queue has definition then return the term
-checkQ :: (Queue Qelm) -> TmName -> Either Term String
+checkQ :: (Queue Qelm) -> TmName -> Term
 checkQ q tmn =
-   case (tmn `elem` l') of
-      True -> case (lookup tmn l') of 
-                Just x -> undefined
-                Nothing -> undefined
-      False -> undefined
+   case (lookup tmn l) of
+      Just x -> x
+      Nothing -> undefined
    where
       l = toListQ $ unfoldQueue q
-      l' = map fst (deQelmL l)
       
 handleCMD :: String -> REPLStateIO()
 handleCMD "" = return ()
@@ -73,7 +70,7 @@ handleCMD s =
     handleLine (Let x t) = push (x,t)
     handleLine (ShowAST t) = io.putStrLn.show $ t
     handleLine (Unfold t) = get >>= (\defs -> io.putStrLn.runPrettyTerm $ unfoldDefsInTerm defs t)
-    handleLine (CallTerm t) = get >>= undefined
+    handleLine (CallTerm tm) = get >>= (\q -> io.putStrLn.runPrettyTerm $ checkQ q tm)
     handleLine DumpState = get >>= io.print.(mapQ prettyDef)
      where
        prettyDef (x, t) = "let " ++ (n2s x) ++ " = " ++ (runPrettyTerm t)

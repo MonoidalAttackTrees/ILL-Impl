@@ -1,0 +1,17 @@
+Week of 25 July 2016
+
+25 Monday 2016
+
+   Studying more monads. I want to get a better understanding of de-sugared 'do' notation in Grady. I understand bind, return, sequencing and the like, just not reflexively or intuitively. Specifically, get/put in Repl.
+
+26 Tuesday 2016
+   
+   Tried using a variation of queue map, map, fold to achieve printing global variables. No luck, just some frustration.
+
+27 Wednesday 2016
+
+   Continuing to experiment with fold, map, map queue, and recursion to print global vars like GHC/GHCi.
+
+28 Thursday 2016
+
+   Resolved issues in printing global variables in queue. Still need to determine best error handling method (currently undefined). I feel better about using get/put and how/why they work.

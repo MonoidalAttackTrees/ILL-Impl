@@ -1,10 +1,10 @@
 module Repl where
-
 import Control.Monad.State
 import System.Console.Haskeline
 import System.Console.Haskeline.MonadException
 import System.Exit
 import Unbound.LocallyNameless.Subst
+import qualified Data.List(elem)
 
 import Syntax
 import Parser
@@ -18,6 +18,15 @@ instance MonadException m => MonadException (StateT s m) where
     controlIO f = StateT $ \s -> controlIO $ \(RunIO run) -> let
                     run' = RunIO (fmap (StateT . const) . run . flip runStateT s)
                     in fmap (flip runStateT s) $ f run'
+
+deQelm :: Qelm -> (TmName, Term)
+deQelm (tmn, tm) = (tmn, tm)
+
+deQelmL :: [Qelm] -> [(TmName, Term)]
+deQelmL q = map deQelm q
+
+tmL :: [(TmName, Term)] -> [TmName]
+tmL ((x,y):ls) = x:(tmL ls) 
 
 io :: IO a -> REPLStateIO a
 io i = liftIO i
@@ -41,6 +50,18 @@ unfoldQueue q = fixQ q emptyQ step
       substDef :: Name Term -> Term -> Qelm -> Qelm
       substDef x t (y, t') = (y, subst x t t')
 
+-- check if queue has definition then return the term
+checkQ :: (Queue Qelm) -> TmName -> Either Term String
+checkQ q tmn =
+   case (tmn `elem` l') of
+      True -> case (lookup tmn l') of 
+                Just x -> undefined
+                Nothing -> undefined
+      False -> undefined
+   where
+      l = toListQ $ unfoldQueue q
+      l' = map fst (deQelmL l)
+      
 handleCMD :: String -> REPLStateIO()
 handleCMD "" = return ()
 handleCMD s =
@@ -52,7 +73,8 @@ handleCMD s =
     handleLine (Let x t) = push (x,t)
     handleLine (ShowAST t) = io.putStrLn.show $ t
     handleLine (Unfold t) = get >>= (\defs -> io.putStrLn.runPrettyTerm $ unfoldDefsInTerm defs t)
-    handleLIne DumpState = get >>= io.print.(mapQ prettyDef)
+    handleLine (CallTerm t) = get >>= undefined
+    handleLine DumpState = get >>= io.print.(mapQ prettyDef)
      where
        prettyDef (x, t) = "let " ++ (n2s x) ++ " = " ++ (runPrettyTerm t)
 

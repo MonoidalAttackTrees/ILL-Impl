@@ -158,6 +158,7 @@ tmCtxParse = tmPairCtxParse `sepBy` (Token.symbol tokenizer ",")
 ------------------------------------------------------------------------
 data REPLExpr =
    Let TmName Term
+ | CallTerm TmName
  | ShowAST Term
  | DumpState
  | Unfold Term
@@ -171,8 +172,9 @@ letParser = do
   eof
   return $ Let n t         
 
--- If var is already in queue, show var
-varParser = undefined
+callTermParser = do
+  n <- varName
+  return $ CallTerm n
 
 replTermCmdParser short long c p = do
   colon
@@ -199,7 +201,7 @@ unfoldTermParser = replTermCmdParser "u" "unfold" Unfold termParser
 
 dumpStateParser = replIntCmdParser "d" "dump" DumpState
 
-lineParser = letParser <|> try showASTParser <|> try unfoldTermParser <|> try dumpStateParser
+lineParser = letParser <|> try showASTParser <|> try unfoldTermParser <|> try dumpStateParser <|> try callTermParser
 
 parseLine :: String -> Either String REPLExpr
 parseLine s = case (parse lineParser "" s) of

@@ -15,3 +15,17 @@ Week of 25 July 2016
 28 Thursday 2016
 
    Resolved issues in printing global variables in queue. Still need to determine best error handling method (currently undefined). I feel better about using get/put and how/why they work.
+
+29 Friday 2016 
+
+   Experimentation with error handling the case for term is not in queue. Undefined exception isn't any good. Should add a case for parser if command in repl doesn't satisfy.
+
+30 Saturday 2016
+
+31 Sunday 2016
+
+   No luck with handling error of let term variable not in queue. Function can return Left string or Right Term just fine, it's using this inside of handleCMD / handleLine and their monadic types thats difficult.
+
+   Will try a helper function that only takes Term case.
+
+   Found a lay-over solution by returning an empty Term variable with an error name. Yes, this is a bad solution. However, we don't get an exception and crash now when a variable isnt in the queue. 

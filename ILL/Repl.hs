@@ -1,10 +1,11 @@
 module Repl where
+
 import Control.Monad.State
+import Control.Monad.Except
 import System.Console.Haskeline
 import System.Console.Haskeline.MonadException
 import System.Exit
 import Unbound.LocallyNameless.Subst
-import qualified Data.List(elem)
 
 import Syntax
 import Parser
@@ -50,15 +51,22 @@ unfoldQueue q = fixQ q emptyQ step
       substDef :: Name Term -> Term -> Qelm -> Qelm
       substDef x t (y, t') = (y, subst x t t')
 
--- check if queue has definition then return the term
 checkQ :: (Queue Qelm) -> TmName -> Term
 checkQ q tmn =
-   case (lookup tmn l) of
-      Just x -> x
-      Nothing -> undefined
+   case (checkQ' q tmn) of
+     Left lf -> Var (s2n "ErrorVar") -- temporary solution for error handling
+     Right rt -> rt
    where
       l = toListQ $ unfoldQueue q
-      
+
+checkQ' :: (Queue Qelm) -> TmName -> Either String Term
+checkQ' q tmn =
+   case (lookup tmn l) of
+      Just x -> Right x
+      Nothing -> Left "Errrr" 
+   where
+      l = toListQ $ unfoldQueue q
+
 handleCMD :: String -> REPLStateIO()
 handleCMD "" = return ()
 handleCMD s =

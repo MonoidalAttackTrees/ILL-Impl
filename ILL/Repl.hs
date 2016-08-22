@@ -51,19 +51,18 @@ unfoldQueue q = fixQ q emptyQ step
       substDef :: Name Term -> Term -> Qelm -> Qelm
       substDef x t (y, t') = (y, subst x t t')
 
-checkQ :: (Queue Qelm) -> TmName -> Term
-checkQ q tmn =
-   case (checkQ' q tmn) of
-     Left lf -> Var (s2n "ErrorVar") -- temporary solution for error handling
+searchTerm :: (Queue Qelm) -> TmName -> Term
+searchTerm q tmn =
+   case (searchTerm' q tmn) of
+    -- Left lf -> Var (s2n lf) -- temporary solution for error handling
+     Left lf -> error "Error, not in queue(2)." -- exception
      Right rt -> rt
-   where
-      l = toListQ $ unfoldQueue q
 
-checkQ' :: (Queue Qelm) -> TmName -> Either String Term
-checkQ' q tmn =
+searchTerm' :: (Queue Qelm) -> TmName -> Either String Term
+searchTerm' q tmn =
    case (lookup tmn l) of
       Just x -> Right x
-      Nothing -> Left "Errrr" 
+      Nothing -> Left "Error, not in queue." 
    where
       l = toListQ $ unfoldQueue q
 
@@ -78,7 +77,7 @@ handleCMD s =
     handleLine (Let x t) = push (x,t)
     handleLine (ShowAST t) = io.putStrLn.show $ t
     handleLine (Unfold t) = get >>= (\defs -> io.putStrLn.runPrettyTerm $ unfoldDefsInTerm defs t)
-    handleLine (CallTerm tm) = get >>= (\q -> io.putStrLn.runPrettyTerm $ checkQ q tm)
+    handleLine (CallTerm t) = get >>= (\q -> io.putStrLn.runPrettyTerm $ searchTerm q t)
     handleLine DumpState = get >>= io.print.(mapQ prettyDef)
      where
        prettyDef (x, t) = "let " ++ (n2s x) ++ " = " ++ (runPrettyTerm t)

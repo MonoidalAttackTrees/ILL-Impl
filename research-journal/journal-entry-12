@@ -1,0 +1,13 @@
+Week of 22 August 2016
+Journal #12
+
+Monday. 22 August 2016
+
+Reworking Syntax to DILL. Including comments/annotations where appropriate for discussion at meeting on Tuesday.
+
+Questions:
+ 1. Var vs Constant (aside obvious difference)
+ 2. Delta ; _ |- ... (meaning of '_')
+ 3. 3rd Let type: LetBang.
+ 4. Include Type information in LetT (tensor let)?
+

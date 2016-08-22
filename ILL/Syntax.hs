@@ -26,6 +26,7 @@ data Type =
   deriving (Show, Eq)
 
 type TmName = Name Term
+type CoName = Name Type
 
 data Term = 
     Var TmName
@@ -35,6 +36,10 @@ data Term =
   | Unit
   | LetU Term Term
   | LetT Term (Bind TmName (Bind TmName Term))
+  -- new terms
+  | Const CoName -- c:A
+  | Bang Term -- !t
+  | LetBang Term Type (Bind TmName Term)
   deriving (Show)
 
 $(derive [''Term,''Type])

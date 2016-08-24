@@ -23,7 +23,6 @@ lexer = haskellStyle {
                            ":t", ":type", ":u", ":unfold", ":d", ":dump"] }
 
 tokenizer = Token.makeTokenParser lexer
-
 ident      = Token.identifier tokenizer
 reserved   = Token.reserved tokenizer
 reservedOp = Token.reservedOp tokenizer
@@ -58,9 +57,24 @@ typeParser' = parens typeParser <|> tyUnit
 ------------------------------------------------------------------------
 -- Term parsers							      --
 ------------------------------------------------------------------------
-aterm = parens termParser <|> unitParse <|> var
+aterm = parens termParser <|> unitParse <|> var <|> try constP
 termParser = lamParse <|> try letTParse <|> letUParse <|> tensParse <|> appParse <?> "Parser error"
 
+constP = constP' constName Const
+constP' p c = do
+    const_name <- p
+    colon
+    ty <- typeParser
+    return (c const_name)
+
+constName = constName' isUpper "Constants must begin with a lowercase letter."
+constName' p msg = do
+    n <- identifier
+    when ((length n) > 0) $
+     let h = head n in 
+       when (p h || isNumber h) $ unexpColon (n++" : "++msg)
+    return . s2n $ n
+    
 var = var' varName Var
 var' p c = do 
     var_name <- p

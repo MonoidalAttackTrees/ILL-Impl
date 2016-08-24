@@ -39,7 +39,7 @@ data Term =
   -- new terms
   | Const CoName -- c:A
   | Bang Term -- !t
-  | LetBang Term Type (Bind TmName Term)
+  | LetBang Term Type (Bind TmName Term) -- let !x:A be t in t
   deriving (Show)
 
 $(derive [''Term,''Type])

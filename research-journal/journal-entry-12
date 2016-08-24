@@ -1,13 +1,24 @@
 Week of 22 August 2016
 Journal #12
 
-Monday. 22 August 2016
+Monday 22 August 2016
 
-Reworking Syntax to DILL. Including comments/annotations where appropriate for discussion at meeting on Tuesday.
+	Reworking Syntax to DILL. Including comments/annotations where appropriate for discussion at meeting on Tuesday.
 
 Questions:
  1. Var vs Constant (aside obvious difference)
  2. Delta ; _ |- ... (meaning of '_')
  3. 3rd Let type: LetBang.
  4. Include Type information in LetT (tensor let)?
+
+Began work on new parsers, constant up first.
+
+Tuesday 23 August 2016
+
+	First attempts at the constant parser was not so good. It took me a while to realize that a term expression that is a constant might be ambiguous when parsed. Maybe I need to implement a better syntax, or find a clever way to recognize a constant. Maybe ordering it after parser ... <|> var <|> try constParse
+
+Wednesday 24 August 2016
+
+	Rough constant parser in repo, but ambiguity is still a problem. I'm going to look at the other parsers instead of wasting time messing with the const parser.
+	
 

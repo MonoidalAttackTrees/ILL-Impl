@@ -57,11 +57,11 @@ typeParser' = parens typeParser <|> tyUnit
 ------------------------------------------------------------------------
 -- Term parsers							      --
 ------------------------------------------------------------------------
-aterm = parens termParser <|> unitParse <|> var <|> try constP
+aterm = parens termParser <|> unitParse <|> var <|> try constParse <|> try bangParse
 termParser = lamParse <|> try letTParse <|> letUParse <|> tensParse <|> appParse <?> "Parser error"
 
-constP = constP' constName Const
-constP' p c = do
+constParse = constParse' constName Const
+constParse' p c = do
     const_name <- p
     colon
     ty <- typeParser
@@ -87,6 +87,11 @@ varName' p msg = do
      let h = head n in 
        when (p h || isNumber h) $ unexpColon (n++" : "++msg)
     return . s2n $ n
+
+bangParse = do
+    symbol "!"
+    t <- termParser
+    return $ Bang t
 
 unitParse = do
     reserved "unit"
@@ -128,11 +133,24 @@ letTParse = do
     x <- varName
     reservedOp "(x)"
     y <- varName
+    -- TODO: add type annotation let x(x)y : A(x)A = t in t
     reservedOp "="
     t1 <- termParser
     reserved "in"
     t2 <- termParser
     return $ LetT t1 (bind x (bind y t2))
+
+letBangParse = do
+    reserved "let"
+    x <- varName
+    colon
+    ty <- typeParser
+    reservedOp "="
+    t1 <- termParser
+    reserved "in"
+    t2 <- termParser
+    return $ LetBang t1 ty (bind x t2)
+    
 ------------------------------------------------------------------------
 -- Functions String -> Term or String -> Type			      --
 ------------------------------------------------------------------------      

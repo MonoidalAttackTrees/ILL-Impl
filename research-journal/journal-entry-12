@@ -21,4 +21,6 @@ Wednesday 24 August 2016
 
 	Rough constant parser in repo, but ambiguity is still a problem. I'm going to look at the other parsers instead of wasting time messing with the const parser.
 	
+Thursday 25 August 2016
 
+	 Implemented parsers for bang terms and let bang (bangParse and letBangParse respectively). Constant parser still remains ambiguous and incorrect (I was just happy it passed Haskell's typecheck). Need to get confirmation or a negative if we are adding type information to tensor let's parser (as the new research documentation does have this as part of the syntax). Next task is to create new printers (and change those that need to be changed).

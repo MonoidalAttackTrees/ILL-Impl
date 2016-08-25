@@ -57,11 +57,11 @@ typeParser' = parens typeParser <|> tyUnit
 ------------------------------------------------------------------------
 -- Term parsers							      --
 ------------------------------------------------------------------------
-aterm = parens termParser <|> unitParse <|> var <|> try constParse <|> try bangParse
-termParser = lamParse <|> try letTParse <|> letUParse <|> tensParse <|> appParse <?> "Parser error"
+aterm = parens termParser <|> unitParse <|> var <|> try constP <|> try bangParse
+termParser = lamParse <|> try letBangParse <|> try letTParse <|> letUParse <|> tensParse <|> appParse <?> "Parser error"
 
-constParse = constParse' constName Const
-constParse' p c = do
+constP = constP' constName Const
+constP' p c = do
     const_name <- p
     colon
     ty <- typeParser
@@ -150,7 +150,6 @@ letBangParse = do
     reserved "in"
     t2 <- termParser
     return $ LetBang t1 ty (bind x t2)
-    
 ------------------------------------------------------------------------
 -- Functions String -> Term or String -> Type			      --
 ------------------------------------------------------------------------      

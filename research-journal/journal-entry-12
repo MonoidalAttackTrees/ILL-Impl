@@ -24,3 +24,7 @@ Wednesday 24 August 2016
 Thursday 25 August 2016
 
 	 Implemented parsers for bang terms and let bang (bangParse and letBangParse respectively). Constant parser still remains ambiguous and incorrect (I was just happy it passed Haskell's typecheck). Need to get confirmation or a negative if we are adding type information to tensor let's parser (as the new research documentation does have this as part of the syntax). Next task is to create new printers (and change those that need to be changed).
+
+Friday 26 August 2016
+
+	Implemented rudimentary printers for updated syntax. I realize I will likely have to incorporate parenthesis on bang terms (maybe, but certainly on LetBang). Waiting for weekly meeting to get more specification and feedback on what has been implemented.

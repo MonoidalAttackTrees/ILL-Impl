@@ -37,6 +37,11 @@ prettyTerm Unit = do
    return "unit"
 prettyTerm (Var n) = do
    return.n2s $ n
+prettyTerm (Const n) = do
+   return.n2s $ n
+prettyTerm (Bang t) = do
+   t' <- prettyTerm t
+   return $ "!" ++ t'
 prettyTerm (App t1 t2) = do
    t1' <- prettyTerm t1
    t2' <- prettyTerm t2
@@ -75,6 +80,13 @@ prettyTerm (LetT t1 t2) = do
    let y' = n2s y
    newtm <- prettyTerm tm'
    return $ "let " ++ x' ++ "(x)" ++ y' ++ " = " ++ t1' ++ " in " ++ newtm
+prettyTerm (LetBang t1 ty t2) = do
+   t1' <- prettyTerm t1
+   ty' <- prettyType ty
+   (x, tm) <- unbind t2
+   let x' = n2s x
+   t2' <- prettyTerm tm
+   return $ "let " ++ t1' ++ ":" ++ ty' ++ " = " ++ t2' ++ " in " ++ x'
 ------------------------------------------------------------------------
 -- Testing functions                                                  --
 ------------------------------------------------------------------------

@@ -142,6 +142,7 @@ letTParse = do
 
 letBangParse = do
     reserved "let"
+    symbol "!"
     x <- varName
     colon
     ty <- typeParser

@@ -28,3 +28,20 @@ Thursday 25 August 2016
 Friday 26 August 2016
 
 	Implemented rudimentary printers for updated syntax. I realize I will likely have to incorporate parenthesis on bang terms (maybe, but certainly on LetBang). Waiting for weekly meeting to get more specification and feedback on what has been implemented.
+
+AMBIGUITY:
+ > let x = !x
+ > let y = !x
+ > y
+   !!x
+(ADDRESSED)
+
+	- Removed Constant term from Syntax
+	- Removed REPL searchQueue (in favor of unfold)
+	- Implemented :help / :h
+
+TODO:
+	- Queue lookup function
+	- Check Haskeline impl for help / man files
+	- Update Haskell Platform
+	- TypeCheck

@@ -51,20 +51,23 @@ unfoldQueue q = fixQ q emptyQ step
       substDef :: Name Term -> Term -> Qelm -> Qelm
       substDef x t (y, t') = (y, subst x t t')
 
-searchTerm :: (Queue Qelm) -> TmName -> Term
-searchTerm q tmn =
-   case (searchTerm' q tmn) of
-    -- Left lf -> Var (s2n lf) -- temporary solution for error handling
-     Left lf -> error "Error, not in queue(2)." -- exception
-     Right rt -> rt
+-- leaving searchTerm implementation in REPL
+-- for specific testing scenarios (for now).
 
-searchTerm' :: (Queue Qelm) -> TmName -> Either String Term
-searchTerm' q tmn =
-   case (lookup tmn l) of
-      Just x -> Right x
-      Nothing -> Left "Error, not in queue." 
-   where
-      l = toListQ $ unfoldQueue q
+-- searchTerm :: (Queue Qelm) -> TmName -> Term
+-- searchTerm q tmn =
+--    case (searchTerm' q tmn) of
+--     -- Left lf -> Var (s2n lf) -- temporary solution for error handling
+--      Left lf -> error "Error, not in queue(2)." -- exception
+--      Right rt -> rt
+
+-- searchTerm' :: (Queue Qelm) -> TmName -> Either String Term
+-- searchTerm' q tmn =
+--    case (lookup tmn l) of
+--       Just x -> Right x
+--       Nothing -> Left "Error, not in queue." 
+--    where
+--       l = toListQ $ unfoldQueue q
 
 handleCMD :: String -> REPLStateIO()
 handleCMD "" = return ()
@@ -77,10 +80,11 @@ handleCMD s =
     handleLine (Let x t) = push (x,t)
     handleLine (ShowAST t) = io.putStrLn.show $ t
     handleLine (Unfold t) = get >>= (\defs -> io.putStrLn.runPrettyTerm $ unfoldDefsInTerm defs t)
-    handleLine (CallTerm t) = get >>= (\q -> io.putStrLn.runPrettyTerm $ searchTerm q t)
+    --handleLine (CallTerm t) = get >>= (\q -> io.putStrLn.runPrettyTerm $ searchTerm q t)
     handleLine DumpState = get >>= io.print.(mapQ prettyDef)
-     where
-       prettyDef (x, t) = "let " ++ (n2s x) ++ " = " ++ (runPrettyTerm t)
+      where
+        prettyDef (x, t) = "let " ++ (n2s x) ++ " = " ++ (runPrettyTerm t)
+    handleLine Help = undefined
 
 banner :: String
 banner = "Welcome to Ill, an Intuitionistic Linear Logic programming language!\n\n"

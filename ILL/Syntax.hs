@@ -23,6 +23,7 @@ data Type =
     I 
   | Lolly Type Type
   | Tensor Type Type
+  | Bang
   deriving (Show, Eq)
 
 type TmName = Name Term
@@ -30,16 +31,14 @@ type CoName = Name Type
 
 data Term = 
     Var TmName
+  | BangT Term 
   | Lam Type (Bind TmName Term)
   | App Term Term
   | Tens Term Term
   | Unit
   | LetU Term Term
   | LetT Term (Bind TmName (Bind TmName Term))
-  -- new terms
-  | Const CoName -- c:A
-  | Bang Term -- !t
-  | LetBang Term Type (Bind TmName Term) -- let !x:A be t in t
+  | LetBang Term Type (Bind TmName Term)
   deriving (Show)
 
 $(derive [''Term,''Type])

@@ -57,23 +57,8 @@ typeParser' = parens typeParser <|> tyUnit
 ------------------------------------------------------------------------
 -- Term parsers							      --
 ------------------------------------------------------------------------
-aterm = parens termParser <|> unitParse <|> var <|> try constP <|> try bangParse
+aterm = parens termParser <|> unitParse <|> var <|> try bangParse
 termParser = lamParse <|> try letBangParse <|> try letTParse <|> letUParse <|> tensParse <|> appParse <?> "Parser error"
-
-constP = constP' constName Const
-constP' p c = do
-    const_name <- p
-    colon
-    ty <- typeParser
-    return (c const_name)
-
-constName = constName' isUpper "Constants must begin with a lowercase letter."
-constName' p msg = do
-    n <- identifier
-    when ((length n) > 0) $
-     let h = head n in 
-       when (p h || isNumber h) $ unexpColon (n++" : "++msg)
-    return . s2n $ n
     
 var = var' varName Var
 var' p c = do 
@@ -91,7 +76,7 @@ varName' p msg = do
 bangParse = do
     symbol "!"
     t <- termParser
-    return $ Bang t
+    return $ BangT t
 
 unitParse = do
     reserved "unit"
@@ -194,6 +179,7 @@ data REPLExpr =
  | ShowAST Term
  | DumpState
  | Unfold Term
+ | Help
  deriving Show
 
 letParser = do
@@ -227,13 +213,23 @@ replIntCmdParser short long c = do
   then return c
   else fail $ "Command \":"++cmd++"\" is unrecognized."
 
+replHelpCmdParser short long c = do
+  colon
+  cmd <- many lower
+  eof
+  if (cmd == long || cmd == short)
+  then return c -- return [String]?
+  else undefined
+
 showASTParser = replTermCmdParser "s" "show" ShowAST termParser
 
 unfoldTermParser = replTermCmdParser "u" "unfold" Unfold termParser         
 
 dumpStateParser = replIntCmdParser "d" "dump" DumpState
 
-lineParser = letParser <|> try showASTParser <|> try unfoldTermParser <|> try dumpStateParser <|> try callTermParser
+helpParser = replHelpCmdParser "h" "help" Help
+
+lineParser = letParser <|> try showASTParser <|> try unfoldTermParser <|> try dumpStateParser <|> try callTermParser 
 
 parseLine :: String -> Either String REPLExpr
 parseLine s = case (parse lineParser "" s) of

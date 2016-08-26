@@ -37,9 +37,7 @@ prettyTerm Unit = do
    return "unit"
 prettyTerm (Var n) = do
    return.n2s $ n
-prettyTerm (Const n) = do
-   return.n2s $ n
-prettyTerm (Bang t) = do
+prettyTerm (BangT t) = do
    t' <- prettyTerm t
    return $ "!" ++ t'
 prettyTerm (App t1 t2) = do

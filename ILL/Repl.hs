@@ -11,6 +11,7 @@ import Syntax
 import Parser
 import Pretty
 import Queue
+import ReplHelp
 
 type Qelm = (TmName, Term)
 type REPLStateIO = StateT (Queue Qelm) IO
@@ -85,7 +86,7 @@ handleCMD s =
       where
         prettyDef (x, t) = "let " ++ (n2s x) ++ " = " ++ (runPrettyTerm t)
     handleLine Help = undefined
-
+    
 banner :: String
 banner = "Welcome to Ill, an Intuitionistic Linear Logic programming language!\n\n"
 

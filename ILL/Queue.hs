@@ -1,3 +1,5 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 --------------------------------------------------------------------------
 -- Functional Queues                                                    --
 --                                                                      --
@@ -9,6 +11,8 @@
 --------------------------------------------------------------------------
 
 module Queue where
+
+import Prelude hiding (lookup)
 
 data Queue a = Queue [a] [a]
 
@@ -41,6 +45,29 @@ tailQ (Queue (x:f) r) = queue f r
 mapQ :: (a -> b) -> Queue a -> Queue b
 mapQ m (Queue f r) = Queue (map m f) (map m r)
 
+-- lookup for Queues - fixpoint recursion version coming soon
+lookup :: Eq a => Queue a -> a -> a
+lookup q a =
+  case (lookup' q a) of
+       Just x -> x
+       Nothing -> undefined
+
+lookup' :: Eq a => Queue a -> a -> Maybe a
+lookup' (Queue [] []) _ = Nothing
+lookup' (Queue [] (l:ls)) t =
+  if (t == l) then Just l
+  else (lookup' (Queue [] ls) t) 
+lookup' (Queue (h:_) []) t =
+   if (t == h) then Just h
+   else Nothing
+lookup' (Queue (h:_) (l:ls)) t =
+   if (t == h) then Just h
+   else if (t == l) then Just l
+   else
+     case (lookup' (Queue [] ls) t) of
+      Nothing -> Nothing
+      Just x -> Just x
+   
 -- The following fixpoint operation makes it easier to do structural
 -- recursion over queues.
 --

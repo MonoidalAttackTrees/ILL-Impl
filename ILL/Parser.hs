@@ -16,6 +16,7 @@ import Control.Monad
 import Data.Functor.Identity
 
 import Syntax
+import ReplHelp
 
 lexer = haskellStyle {
   Token.reservedNames = ["let", "be", "in", "for", "as", "unit", "I"],
@@ -218,7 +219,7 @@ replHelpCmdParser short long c = do
   cmd <- many lower
   eof
   if (cmd == long || cmd == short)
-  then return c -- return [String]?
+  then return showHelp -- return [String]?
   else undefined
 
 showASTParser = replTermCmdParser "s" "show" ShowAST termParser

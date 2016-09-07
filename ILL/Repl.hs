@@ -11,7 +11,6 @@ import Syntax
 import Parser
 import Pretty
 import Queue
-import ReplHelp
 
 type Qelm = (TmName, Term)
 type REPLStateIO = StateT (Queue Qelm) IO
@@ -20,15 +19,6 @@ instance MonadException m => MonadException (StateT s m) where
     controlIO f = StateT $ \s -> controlIO $ \(RunIO run) -> let
                     run' = RunIO (fmap (StateT . const) . run . flip runStateT s)
                     in fmap (flip runStateT s) $ f run'
-
-deQelm :: Qelm -> (TmName, Term)
-deQelm (tmn, tm) = (tmn, tm)
-
-deQelmL :: [Qelm] -> [(TmName, Term)]
-deQelmL q = map deQelm q
-
-tmL :: [(TmName, Term)] -> [TmName]
-tmL ((x,y):ls) = x:(tmL ls) 
 
 io :: IO a -> REPLStateIO a
 io i = liftIO i
@@ -52,24 +42,6 @@ unfoldQueue q = fixQ q emptyQ step
       substDef :: Name Term -> Term -> Qelm -> Qelm
       substDef x t (y, t') = (y, subst x t t')
 
--- leaving searchTerm implementation in REPL
--- for specific testing scenarios (for now).
-
--- searchTerm :: (Queue Qelm) -> TmName -> Term
--- searchTerm q tmn =
---    case (searchTerm' q tmn) of
---     -- Left lf -> Var (s2n lf) -- temporary solution for error handling
---      Left lf -> error "Error, not in queue(2)." -- exception
---      Right rt -> rt
-
--- searchTerm' :: (Queue Qelm) -> TmName -> Either String Term
--- searchTerm' q tmn =
---    case (lookup tmn l) of
---       Just x -> Right x
---       Nothing -> Left "Error, not in queue." 
---    where
---       l = toListQ $ unfoldQueue q
-
 handleCMD :: String -> REPLStateIO()
 handleCMD "" = return ()
 handleCMD s =
@@ -81,14 +53,20 @@ handleCMD s =
     handleLine (Let x t) = push (x,t)
     handleLine (ShowAST t) = io.putStrLn.show $ t
     handleLine (Unfold t) = get >>= (\defs -> io.putStrLn.runPrettyTerm $ unfoldDefsInTerm defs t)
-    --handleLine (CallTerm t) = get >>= (\q -> io.putStrLn.runPrettyTerm $ searchTerm q t)
     handleLine DumpState = get >>= io.print.(mapQ prettyDef)
       where
         prettyDef (x, t) = "let " ++ (n2s x) ++ " = " ++ (runPrettyTerm t)
-    handleLine Help = undefined
     
 banner :: String
 banner = "Welcome to Ill, an Intuitionistic Linear Logic programming language!\n\n"
+
+helpDoc :: String
+helpDoc =
+ "\nCommands available for the Ill REPL\&:\n\n\
+ \\&:u \&:unfold -> Unfold and print definitions in queue.\n\
+ \\&:s \&:show <term>   -> Print the abstract syntax of a term.\n\
+ \\&:d \&:dump   -> Print contents of REPL queue.\n\
+ \\&:h \&:help   -> Display this help document.\n"
 
 main = do
     putStr banner
@@ -101,5 +79,7 @@ main = do
                      Nothing -> return ()
                      Just input | input == ":q" || input == ":quit" ->
                                   liftIO $ putStrLn "Exiting Ill." >> return ()
+                                | input == ":h" || input == ":help" ->
+                                  liftIO $ putStrLn helpDoc >> return ()
                                 | otherwise -> (lift.handleCMD $ input) >> loop
-    
+

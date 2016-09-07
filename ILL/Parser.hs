@@ -16,7 +16,6 @@ import Control.Monad
 import Data.Functor.Identity
 
 import Syntax
-import ReplHelp
 
 lexer = haskellStyle {
   Token.reservedNames = ["let", "be", "in", "for", "as", "unit", "I"],
@@ -214,21 +213,11 @@ replIntCmdParser short long c = do
   then return c
   else fail $ "Command \":"++cmd++"\" is unrecognized."
 
-replHelpCmdParser short long c = do
-  colon
-  cmd <- many lower
-  eof
-  if (cmd == long || cmd == short)
-  then return showHelp -- return [String]?
-  else undefined
-
 showASTParser = replTermCmdParser "s" "show" ShowAST termParser
 
 unfoldTermParser = replTermCmdParser "u" "unfold" Unfold termParser         
 
 dumpStateParser = replIntCmdParser "d" "dump" DumpState
-
-helpParser = replHelpCmdParser "h" "help" Help
 
 lineParser = letParser <|> try showASTParser <|> try unfoldTermParser <|> try dumpStateParser <|> try callTermParser 
 

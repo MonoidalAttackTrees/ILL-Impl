@@ -70,14 +70,15 @@ prettyTerm (LetU t1 t2) = do
    t1' <- prettyTerm t1
    t2' <- prettyTerm t2
    return $ "let " ++ t1' ++ " = " ++ "unit " ++ "in " ++ t2'
-prettyTerm (LetT t1 t2) = do
+prettyTerm (LetT t1 ty t2) = do
    t1' <- prettyTerm t1
+   ty' <- prettyType ty
    (x, tm) <- unbind t2
    (y, tm') <- unbind tm
    let x' = n2s x
    let y' = n2s y
    newtm <- prettyTerm tm'
-   return $ "let " ++ x' ++ "(x)" ++ y' ++ " = " ++ t1' ++ " in " ++ newtm
+   return $ "let "++x'++"(x)"++ y'++":"++ty'++" = "++t1'++" in "++ newtm
 prettyTerm (LetBang t1 ty t2) = do
    t1' <- prettyTerm t1
    ty' <- prettyType ty

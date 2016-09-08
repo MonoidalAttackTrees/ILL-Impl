@@ -58,11 +58,11 @@ handleCMD s =
         prettyDef (x, t) = "let " ++ (n2s x) ++ " = " ++ (runPrettyTerm t)
     
 banner :: String
-banner = "Welcome to Ill, an Intuitionistic Linear Logic programming language!\n\n"
+banner = "Welcome to ILL, an Intuitionistic Linear Logic programming language!\n\n"
 
 helpDoc :: String
 helpDoc =
- "\nCommands available for the Ill REPL\&:\n\n\
+ "\nCommands available for the ILL REPL\&:\n\n\
  \\&:u \&:unfold -> Unfold and print definitions in queue.\n\
  \\&:s \&:show <term>   -> Print the abstract syntax of a term.\n\
  \\&:d \&:dump   -> Print contents of REPL queue.\n\
@@ -74,11 +74,11 @@ main = do
       where
          loop :: InputT REPLStateIO ()
          loop = do
-                 minput <- getInputLine "Ill> "
+                 minput <- getInputLine "ILL> "
                  case minput of
                      Nothing -> return ()
                      Just input | input == ":q" || input == ":quit" ->
-                                  liftIO $ putStrLn "Exiting Ill." >> return ()
+                                  liftIO $ putStrLn "Exiting ILL." >> return ()
                                 | input == ":h" || input == ":help" ->
                                   liftIO $ putStrLn helpDoc >> return ()
                                 | otherwise -> (lift.handleCMD $ input) >> loop

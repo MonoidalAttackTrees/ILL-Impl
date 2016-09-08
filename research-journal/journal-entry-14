@@ -1,0 +1,18 @@
+Week of 5 September 2016
+Journal #14
+
+Monday 5 September
+
+	Experimentation with monads, specifically IO, StateT, REPL monads.
+
+Tuesday 6 September
+
+	Removed dead code, unnecessary data constructors. Reviewed and started type construction rules.
+
+Wednesday 7 September 2016
+
+	When building type checker for LetU (let *), realized that syntax/parser may need adjustment. Do we really need to take in two -terms-? The first input should just be a variable as it is substituting for a known term, *. 
+
+Thursday 8 September 2016
+
+	Progress on type construction. Modified LetT syntax, printer, parser to accomodate type annotation. Type construction for tensor terms, let unit* (must discuss), application, lolly/lambda, var, implemented.

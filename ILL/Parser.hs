@@ -103,12 +103,14 @@ tensParse = do
    symbol ","
    t2 <- termParser
    return $ Tens t1 t2
-          
+
+-- does t1 need to be termParsed? it seems like it should
+-- just be a variable
 letUParse = do
     reserved "let"
     reserved "unit"
     reservedOp "="
-    t1 <- termParser
+    t1 <- termParser -- change to varName? must change syntax too
     reserved "in"
     t2 <- termParser
     return $ LetU t1 t2
@@ -119,11 +121,17 @@ letTParse = do
     reservedOp "(x)"
     y <- varName
     -- TODO: add type annotation let x(x)y : A(x)A = t in t
+    colon
+    ty1 <- typeParser
+    reservedOp "(x)"
+    ty2 <- typeParser
+    -- end new type annotation
     reservedOp "="
     t1 <- termParser
     reserved "in"
     t2 <- termParser
-    return $ LetT t1 (bind x (bind y t2))
+    -- return $ LetT t1 (bind x (bind y t2))
+    return $ LetT t1 (Tensor ty1 ty2) (bind x (bind y t2))
 
 letBangParse = do
     reserved "let"
@@ -179,7 +187,6 @@ data REPLExpr =
  | ShowAST Term
  | DumpState
  | Unfold Term
- | Help
  deriving Show
 
 letParser = do

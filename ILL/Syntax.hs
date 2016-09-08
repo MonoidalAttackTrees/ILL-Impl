@@ -37,7 +37,7 @@ data Term =
   | Tens Term Term
   | Unit
   | LetU Term Term
-  | LetT Term (Bind TmName (Bind TmName Term))
+  | LetT Term Type (Bind TmName (Bind TmName Term))
   | LetBang Term Type (Bind TmName Term)
   deriving (Show)
 

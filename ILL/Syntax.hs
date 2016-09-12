@@ -23,7 +23,7 @@ data Type =
     I 
   | Lolly Type Type
   | Tensor Type Type
-  | Bang
+  | Bang Type
   deriving (Show, Eq)
 
 type TmName = Name Term

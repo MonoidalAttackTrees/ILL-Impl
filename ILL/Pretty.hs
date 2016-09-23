@@ -106,4 +106,3 @@ runPrettyType = runFreshM.prettyType
 
 runPrettyTerm :: Term -> String
 runPrettyTerm = runFreshM.prettyTerm
-

@@ -13,6 +13,15 @@
 module Queue where
 
 import Prelude hiding (lookup)
+-- imports for testing
+import Syntax
+import Parser
+import Pretty
+import TypeCheck
+-- remove imports after recursive lookup
+
+-- redundant Qelm (found in Repl) for testing purposes
+type Qelm = (TmName, Term)
 
 data Queue a = Queue [a] [a]
 
@@ -67,7 +76,18 @@ lookup' (Queue (h:_) (l:ls)) t =
      case (lookup' (Queue [] ls) t) of
       Nothing -> Nothing
       Just x -> Just x
-   
+
+-- fixQ function to replace Queue lookup/lookup'
+lookup'' q@(Queue (l:ls) l2) t = (fixQ q (return ()) (\x q' r -> (putStrLn.show $ x)))
+
+lookupStep (l:ls) q t = undefined
+
+-- Test queues
+term1 = parseTerm "\\(x:I).unit"
+
+qu :: (Queue Qelm)
+qu = (queue (((s2n "x"), term1) (((s2n "y"), term1), term1)))
+
 -- The following fixpoint operation makes it easier to do structural
 -- recursion over queues.
 --

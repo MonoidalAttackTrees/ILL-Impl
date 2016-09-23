@@ -27,7 +27,6 @@ data Type =
   deriving (Show, Eq)
 
 type TmName = Name Term
-type CoName = Name Type
 
 data Term = 
     Var TmName

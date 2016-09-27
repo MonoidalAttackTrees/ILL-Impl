@@ -1,0 +1,14 @@
+Week of 12 September 2016
+Journal #15
+
+Monday 12 Sept 2016
+
+	Implemented remaining TypeCheck functions. TypeCheck is "complete", awaiting validation.
+
+Tuesday 13 Sept 2016
+
+	Experimenting with fixQ to replace Queue lookup function. Repl :help does not loop. I see why, but I am not certain on how to pipe computation after printing help into the type of loop().
+
+Wednesday 14 Sept 2016
+
+	More work on recursive lookup on fixQ. Building test terms and queue to test recursive lookup.

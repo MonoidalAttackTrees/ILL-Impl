@@ -16,7 +16,7 @@ module Syntax (module Unbound.LocallyNameless,
 
 import Prelude
 import Data.List
-import Unbound.LocallyNameless 
+import Unbound.LocallyNameless hiding (fv)
 import Unbound.LocallyNameless.Alpha
 
 data Type =

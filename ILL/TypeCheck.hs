@@ -3,11 +3,20 @@ module TypeCheck where
 
 import Text.Parsec
 import Control.Monad.Except
+import Data.List
 
 import Syntax
 import Pretty
 import Parser
-import ILLError
+------------------------------------------------------------------------
+-- TypeError handles error data & future error handling               --
+------------------------------------------------------------------------
+data TypeError =
+    UnitNonEmptyCtxError
+  | VarError -- expand
+  | AppSrcError
+  | BangNonEmptyCtxError
+  -- TODO: Implement error types for TypeCheck cases
 ------------------------------------------------------------------------
 -- Typing contexts                                                    --
 ------------------------------------------------------------------------
@@ -18,12 +27,6 @@ emptyCtx = []
 
 extCtx :: Ctx -> TmName -> Type -> Ctx
 extCtx ctx nm ty = (nm, ty) : ctx
-
-remCtx :: Ctx -> TmName -> Type -> Ctx
-remCtx [] nm ty = []
-remCtx (c:ctx) nm ty = case (lookup nm (c:ctx)) of
-                    Nothing -> remCtx ctx nm ty
-                    _ -> ctx
 ------------------------------------------------------------------------
 -- Parser for contexts                                                --
 ------------------------------------------------------------------------
@@ -35,25 +38,70 @@ parseCtx str =
 ------------------------------------------------------------------------
 -- Free Variable Collection                                           --
 ------------------------------------------------------------------------
---getFV :: Ctx -> Ctx -> Term -> Ctx
-getFV c1 c2 Unit = c1 ++ []
-getFV c1 c2 (BangT t) = getFV c1 c2 t
-getFV c1 c2 (Var tmn@(t)) = undefined
-getFV c1 c2 (App t1 t2) = getFV c1 c2 t1 ++ getFV c1 c2 t2
-getFV c1 c2 (Tens t1 t2) = getFV c1 c2 t1 ++ getFV c1 c2 t2
-getFV c1 c2 (LetU t1 t2) = getFV c1 c2 t1 ++ getFV c1 c2 t2
-getFV c1 c2 (Lam ty t) = undefined
+fv :: Fresh m => Term -> m [TmName]
+fv Unit = return []
+fv (Var t) = return [t]
+fv (LetU t1 t2) = do
+   t1' <- fv t1
+   t2' <- fv t2
+   return $ t1' ++ t2'
+fv (Tens t1 t2) = do
+   t1' <- fv t1
+   t2' <- fv t2
+   return $ t1' ++ t2'
+fv (Lam ty b) = do
+   (n,tm) <- unbind b
+   t <- fv tm
+   return $ t \\ [n]
+fv (App t1 t2) = do
+   t1' <- fv t1
+   t2' <- fv t2
+   return $ t1' ++ t2'
+fv (LetT t ty b) = do
+   (n,tm) <- unbind b
+   (n',tm') <- unbind tm
+   t1 <- fv t
+   t2 <- fv tm'
+   return $ t1 ++ (t2 \\ [n,n'])
+fv (LetBang t ty b) = do
+   t1 <- fv t
+   (n,tm) <- unbind b
+   t2 <- fv tm
+   return $ t1 ++ (t2 \\ [n])
+fv (BangT t) = do
+   t' <- fv t
+   return t'
+------------------------------------------------------------------------
+-- Splitting linear contexts                                          --
+------------------------------------------------------------------------
+subCtx :: Ctx -> [TmName] -> Ctx
+subCtx ctx [] = []
+subCtx [] _ = []
+subCtx ctx (n:ns) = case (lookup n ctx) of
+  Just ty -> (n,ty) : subCtx ctx ns
+  _ -> subCtx ctx ns
+------------------------------------------------------------------------
+-- Compose free variable collection & split context                   --
+------------------------------------------------------------------------
+splitCtx ctx t = subCtx ctx . fv t
 ------------------------------------------------------------------------
 -- Type checking algorithm                                            --
+-- c1 (GAMMA) denotes intuitionistic context                          --
+-- c2 (DELTA) denotes linear context                                  --
 ------------------------------------------------------------------------
 typeCheck :: Fresh m => Ctx -> Ctx -> Term -> ExceptT TypeError m Type
-typeCheck c1 c2 Unit = return I
+typeCheck c1 c2 Unit = do
+  if (c2 == [])
+    then return I
+    else error "" -- TODO: Implement error handling
 typeCheck c1 c2 (Var t) = undefined
 -- Two separate Var cases?
 typeCheck c1 c2 (BangT t) = do
-    ty <- typeCheck c1 c2 t
-    return $ Bang ty
-
+    case c2 of
+      [] -> do
+             ty <- typeCheck c1 c2 t
+             return $ Bang ty
+      _ -> error "" -- TODO: Implement error handling
 ------------------------------------------------------------------------
 --                                                                    --
 ------------------------------------------------------------------------

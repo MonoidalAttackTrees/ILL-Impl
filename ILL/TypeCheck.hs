@@ -12,10 +12,9 @@ import Parser
 -- TypeError handles error data & future error handling               --
 ------------------------------------------------------------------------
 data TypeError =
-    UnitNonEmptyCtxError
+    NonEmptyCtxError
   | VarError -- expand
   | AppSrcError
-  | BangNonEmptyCtxError
   -- TODO: Implement error types for TypeCheck cases
 ------------------------------------------------------------------------
 -- Typing contexts                                                    --
@@ -72,18 +71,23 @@ fv (BangT t) = do
    t' <- fv t
    return t'
 ------------------------------------------------------------------------
--- Splitting linear contexts                                          --
+-- Splitting linear contexts. Takes list of free variables and a      --
+-- context, creating the subset of the context that contains those    --
+-- free variables.                                                    --
 ------------------------------------------------------------------------
-subCtx :: Ctx -> [TmName] -> Ctx
-subCtx ctx [] = []
-subCtx [] _ = []
-subCtx ctx (n:ns) = case (lookup n ctx) of
-  Just ty -> (n,ty) : subCtx ctx ns
-  _ -> subCtx ctx ns
+subCtx :: Fresh m => Ctx -> [TmName] -> m Ctx
+subCtx [] n = return emptyCtx
+subCtx ctx (n:ns) = do
+  case (lookup n ctx) of
+    Just ty -> do
+      let ctx' = (n,ty) : ctx
+      c <- subCtx ctx' ns
+      return c
+    _ -> return emptyCtx
 ------------------------------------------------------------------------
 -- Compose free variable collection & split context                   --
 ------------------------------------------------------------------------
-splitCtx ctx t = subCtx ctx . fv t
+splitCtx ctx tm = subCtx ctx . fv tm
 ------------------------------------------------------------------------
 -- Type checking algorithm                                            --
 -- c1 (GAMMA) denotes intuitionistic context                          --
@@ -94,8 +98,8 @@ typeCheck c1 c2 Unit = do
   if (c2 == [])
     then return I
     else error "" -- TODO: Implement error handling
-typeCheck c1 c2 (Var t) = undefined
--- Two separate Var cases?
+-- intuitionistic Var
+typeCheck c1 [] (Var t) = undefined
 typeCheck c1 c2 (BangT t) = do
     case c2 of
       [] -> do

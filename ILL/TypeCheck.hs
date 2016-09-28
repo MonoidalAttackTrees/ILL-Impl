@@ -13,6 +13,7 @@ import Parser
 ------------------------------------------------------------------------
 data TypeError =
     NonEmptyCtxError
+  | EmptyCtxError
   | VarError -- expand
   | AppSrcError
   -- TODO: Implement error types for TypeCheck cases
@@ -72,49 +73,61 @@ fv (BangT t) = do
    return t'
 ------------------------------------------------------------------------
 -- Splitting linear contexts. Takes list of free variables and a      --
--- context, creating the subset of the context that contains those    --
--- free variables.                                                    --
+-- context, creating the subcontext that contains those free variables--
 ------------------------------------------------------------------------
-subCtx :: Fresh m => Ctx -> [TmName] -> m Ctx
-subCtx [] n = return emptyCtx
-subCtx ctx (n:ns) = do
+-- subCtx :: Fresh m => Ctx -> [TmName] -> m Ctx
+-- subCtx [] n = return emptyCtx
+-- subCtx ctx (n:ns) = do
+--   case (lookup n ctx) of
+--     Just ty -> do
+--       let ctx' = (n,ty) : ctx
+--       c <- subCtx ctx' ns
+--       return c
+--     _ -> return emptyCtx
+
+subCtx :: [TmName] -> Ctx -> Ctx
+subCtx n [] = emptyCtx
+subCtx (n:ns) ctx = do
   case (lookup n ctx) of
-    Just ty -> do
-      let ctx' = (n,ty) : ctx
-      c <- subCtx ctx' ns
-      return c
-    _ -> return emptyCtx
+    Just ty -> subCtx ns ((n,ty):ctx) 
+    Nothing -> subCtx ns ctx 
 ------------------------------------------------------------------------
 -- Compose free variable collection & split context                   --
 ------------------------------------------------------------------------
-splitCtx ctx tm = subCtx ctx . fv tm
+splitCtx :: Fresh m => Ctx -> Term -> m Ctx
+splitCtx ctx tm = do
+  tms <- fv tm
+  return $ subCtx tms ctx
+-- splitCtx ctx tm = fv tm . subCtx ctx
+-- splitCtx ctx tm = (fv tm) >>= subCtx ctx
 ------------------------------------------------------------------------
 -- Type checking algorithm                                            --
 -- c1 (GAMMA) denotes intuitionistic context                          --
 -- c2 (DELTA) denotes linear context                                  --
 ------------------------------------------------------------------------
 typeCheck :: Fresh m => Ctx -> Ctx -> Term -> ExceptT TypeError m Type
--- typeCheck c1 [] Unit pattern would work, but would not capture
--- all patterns.
-typeCheck c1 c2 Unit = do
-  if (c2 == [])
-    then return I
-    else error "" -- TODO: Implement error handling
+typeCheck c1 [] Unit = return I
+typeCheck c1 _ Unit = error "" -- NonEmptyCtxError
 -- intuitionistic Var
 typeCheck c1 [] (Var t) = do
-  --ctx <- subCtx c1 . fv (Var t)
-  return undefined
+  ctx <- splitCtx c1 $ Var t
+  case (lookup t ctx) of
+    Nothing -> error ""
+    Just ty -> return ty
 -- linear Var
-typeCheck _ c2 (Var t) = undefined
--- typeCheck c1 [] (BangT t) would work, but incomplete pattern
--- and will not catch context error.
-typeCheck c1 c2 (BangT t) = do
-    case c2 of
-      [] -> do
-             ty <- typeCheck c1 c2 t
-             return $ Bang ty
-      _ -> error "" -- TODO: Implement error handling
-typeCheck c1 c2 (LetU t1 t2) = undefined
+typeCheck _ c2 (Var t) = do
+  ctx <- splitCtx c2 $ Var t
+  if (length ctx == 1)
+     then undefined          -- TODO
+     else error ""
+typeCheck c1 [] (BangT t) = do
+  ty <- typeCheck c1 [] t
+  return $ Bang ty
+typeCheck c1 _ (BangT t) = error "" -- NonEmptyCtxError
+typeCheck c1 c2 (LetU t1 t2) = do
+  c1' <- splitCtx c1 t1
+  c2' <- splitCtx c2 t2
+  undefined
 ------------------------------------------------------------------------
 --                                                                    --
 ------------------------------------------------------------------------

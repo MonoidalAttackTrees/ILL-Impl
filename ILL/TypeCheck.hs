@@ -94,18 +94,27 @@ splitCtx ctx tm = subCtx ctx . fv tm
 -- c2 (DELTA) denotes linear context                                  --
 ------------------------------------------------------------------------
 typeCheck :: Fresh m => Ctx -> Ctx -> Term -> ExceptT TypeError m Type
+-- typeCheck c1 [] Unit pattern would work, but would not capture
+-- all patterns.
 typeCheck c1 c2 Unit = do
   if (c2 == [])
     then return I
     else error "" -- TODO: Implement error handling
 -- intuitionistic Var
-typeCheck c1 [] (Var t) = undefined
+typeCheck c1 [] (Var t) = do
+  --ctx <- subCtx c1 . fv (Var t)
+  return undefined
+-- linear Var
+typeCheck _ c2 (Var t) = undefined
+-- typeCheck c1 [] (BangT t) would work, but incomplete pattern
+-- and will not catch context error.
 typeCheck c1 c2 (BangT t) = do
     case c2 of
       [] -> do
              ty <- typeCheck c1 c2 t
              return $ Bang ty
       _ -> error "" -- TODO: Implement error handling
+typeCheck c1 c2 (LetU t1 t2) = undefined
 ------------------------------------------------------------------------
 --                                                                    --
 ------------------------------------------------------------------------

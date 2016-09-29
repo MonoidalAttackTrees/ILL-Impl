@@ -85,19 +85,28 @@ fv (BangT t) = do
 --       return c
 --     _ -> return emptyCtx
 
-subCtx :: [TmName] -> Ctx -> Ctx
-subCtx n [] = emptyCtx
+subCtx :: [TmName] -> Ctx -> Maybe Ctx
+subCtx n [] = Just emptyCtx
 subCtx (n:ns) ctx = do
-  case (lookup n ctx) of
-    Just ty -> subCtx ns ((n,ty):ctx) 
-    Nothing -> subCtx ns ctx 
+  ty <- lookup n ctx
+  do
+    ctx' <- subCtx ns ctx
+    return $ (n,ty) : ctx'
+                -- (subCtx ns ctx) >>= (\ctx' -> return ((n,ty) : ctx'))
+                -- let r = subCtx ns ctx
+                -- in case r of
+                --      Just ctx' -> Just ((n,ty) : ctx')
+                --      Nothing -> Nothing
 ------------------------------------------------------------------------
 -- Compose free variable collection & split context                   --
 ------------------------------------------------------------------------
-splitCtx :: Fresh m => Ctx -> Term -> m Ctx
+splitCtx :: Fresh m => Ctx -> Term -> ExceptT TypeError m Ctx
 splitCtx ctx tm = do
   tms <- fv tm
-  return $ subCtx tms ctx
+  let mctx' = subCtx tms ctx
+   in case mctx' of
+        Just ctx' -> return ctx'
+        Nothing -> throwError VarError -- Change to correct error
 -- splitCtx ctx tm = fv tm . subCtx ctx
 -- splitCtx ctx tm = (fv tm) >>= subCtx ctx
 ------------------------------------------------------------------------
@@ -115,21 +124,22 @@ typeCheck c1 [] (Var t) = do
     Nothing -> error ""
     Just ty -> return ty
 -- linear Var
-typeCheck _ c2 (Var t) = do
-  ctx <- splitCtx c2 $ Var t
-  if (length ctx == 1)
-     then return $ snd . head $ ctx
+typeCheck _ [(x,ty)] (Var y) = do
+  if (x == y)
+     then return $ ty
      else error ""
 typeCheck c1 [] (BangT t) = do
   ty <- typeCheck c1 [] t
   return $ Bang ty
 typeCheck c1 _ (BangT t) = error "" -- NonEmptyCtxError
-typeCheck c1 c2 (LetU t1 t2) = do -- see rules: don't actually see if t1,t2 are in ctx
-  c1' <- splitCtx c1 t1
-  c2' <- splitCtx c2 t2
-  ty2 <- typeCheck c1' c2' t2
+typeCheck g d (LetU t u) = do -- see rules: don't actually see if t1,t2 are in ctx
+  d1 <- splitCtx d t
+  d2 <- splitCtx d u
+  ty1 <- typeCheck g d1 t
+  ty2 <- typeCheck g d2 u
+  -- Check that ty1 is I.
   return ty2
-typeCheck c1 c2 (LetT t1 ty t2) = do
+typeCheck c1 c2 (LetT t1 (Tensor a b) t2) = do
   c1' <- splitCtx c1 t1
   (n,tm) <- unbind t2
   (n',tm') <- unbind tm

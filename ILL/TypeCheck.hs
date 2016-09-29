@@ -118,16 +118,26 @@ typeCheck c1 [] (Var t) = do
 typeCheck _ c2 (Var t) = do
   ctx <- splitCtx c2 $ Var t
   if (length ctx == 1)
-     then undefined          -- TODO
+     then return $ snd . head $ ctx
      else error ""
 typeCheck c1 [] (BangT t) = do
   ty <- typeCheck c1 [] t
   return $ Bang ty
 typeCheck c1 _ (BangT t) = error "" -- NonEmptyCtxError
-typeCheck c1 c2 (LetU t1 t2) = do
+typeCheck c1 c2 (LetU t1 t2) = do -- see rules: don't actually see if t1,t2 are in ctx
   c1' <- splitCtx c1 t1
   c2' <- splitCtx c2 t2
-  undefined
+  ty2 <- typeCheck c1' c2' t2
+  return ty2
+typeCheck c1 c2 (LetT t1 ty t2) = do
+  c1' <- splitCtx c1 t1
+  (n,tm) <- unbind t2
+  (n',tm') <- unbind tm
+  c2' <- splitCtx c2 tm'
+  ty1 <- typeCheck c1' c2' t1
+  ty2 <- typeCheck c1' c2' tm'
+  case ty1 of
+   (Tensor tyA tyB) -> undefined
 ------------------------------------------------------------------------
 --                                                                    --
 ------------------------------------------------------------------------

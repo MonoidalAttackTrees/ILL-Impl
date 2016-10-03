@@ -136,7 +136,7 @@ typeCheck g d (LetT u (Tensor a b) t'') = do
   tyt <- typeCheck g d2 t
   case tyu of
     (Tensor a' b') -> return tyt
-    _ -> throwError InvalidArgException
+    _ -> throwError InvalidTypeException
 typeCheck g d (LetT u _ t) = throwError InvalidTypeException
 typeCheck g d (LetBang u (Bang ty) t') = do
   (n,t) <- unbind t'
@@ -146,6 +146,7 @@ typeCheck g d (LetBang u (Bang ty) t') = do
   tyu <- typeCheck g d1 u
   case tyu of
     (Bang ty) -> (typeCheck g2 d2 t) >>= (\tyt -> return tyt)
+    _ -> throwError InvalidTypeException
 typeCheck g d (LetBang u _ t') = throwError InvalidTypeException 
 typeCheck g d (Lam ty t) = do
   (n,t') <- unbind t

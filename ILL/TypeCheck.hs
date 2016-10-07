@@ -19,6 +19,7 @@ data TypeError =
   | AppSrcException
   | InvalidArgException
   | InvalidTypeException
+
 ------------------------------------------------------------------------
 -- Typing contexts                                                    --
 ------------------------------------------------------------------------
@@ -29,6 +30,11 @@ emptyCtx = []
 
 extCtx :: Ctx -> TmName -> Type -> Ctx
 extCtx ctx nm ty = (nm, ty) : ctx
+
+infixr 5 |:|
+(|:|) :: (TmName,Type) -> Ctx -> Ctx
+(x,t) |:| g = extCtx g x t
+
 ------------------------------------------------------------------------
 -- Parser for contexts                                                --
 ------------------------------------------------------------------------
@@ -83,7 +89,7 @@ subCtx (n:ns) c = do
   ty <- lookup n c
   (subCtx ns c) >>= (\ctx' -> return ((n,ty):ctx'))
 ------------------------------------------------------------------------
--- Create disjoint sub-contexts from gamma and delta                      --
+-- Create disjoint sub-contexts from gamma and delta                  --
 ------------------------------------------------------------------------
 disjointCtx :: Fresh m => Ctx -> Term -> ExceptT TypeError m Ctx
 disjointCtx ctx tm = do
@@ -94,8 +100,8 @@ disjointCtx ctx tm = do
         Nothing -> throwError TermNotInCtxException
 ------------------------------------------------------------------------
 -- Type checking algorithm                                            --
--- c1 (GAMMA) denotes intuitionistic context                          --
--- c2 (DELTA) denotes linear context                                  --
+-- g (GAMMA) denotes intuitionistic context                           --
+-- d (DELTA) denotes linear context                                   --
 ------------------------------------------------------------------------
 typeCheck :: Fresh m => Ctx -> Ctx -> Term -> ExceptT TypeError m Type
 typeCheck g [] Unit = return I
@@ -109,6 +115,7 @@ typeCheck _ [(x,ty)] (Var y) = do
   if (x == y)
      then return $ ty
      else throwError VarException
+-- Rule: ! - I
 typeCheck c1 [] (BangT t) = do
   ty <- typeCheck c1 [] t
   return $ Bang ty
@@ -119,39 +126,43 @@ typeCheck g d (Tens t u) = do
   ty1 <- typeCheck g d1 t
   ty2 <- typeCheck g d2 u
   return $ Tensor ty1 ty2
-typeCheck g d (LetU u t) = do
-  d1 <- disjointCtx d u
-  d2 <- disjointCtx d t
-  ty1 <- typeCheck g d1 u
-  ty2 <- typeCheck g d2 t
+typeCheck g d (LetU t u) = do
+  d1 <- disjointCtx d t
+  d2 <- disjointCtx d u
+  ty1 <- typeCheck g d1 t
+  ty2 <- typeCheck g d2 u
   if (ty1 == I)
     then return ty2
     else throwError $ InvalidTypeException
 typeCheck g d (LetT u (Tensor a b) t'') = do
-  (n',t') <- unbind t''
-  (n,t) <- unbind t'
+  (x,t') <- unbind t''
+  (y,t) <- unbind t'
   d1 <- disjointCtx d u
   d2 <- disjointCtx d t
   tyu <- typeCheck g d1 u
-  tyt <- typeCheck g d2 t
+  tyt <- typeCheck g ((x,a) |:| (y,b) |:| d2) t
   case tyu of
-    (Tensor a' b') -> return tyt
+    (Tensor a' b') ->
+        if ((a',b') == (a,b))
+        then return tyt
+        else throwError InvalidTypeException
     _ -> throwError InvalidTypeException
 typeCheck g d (LetT u _ t) = throwError InvalidTypeException
-typeCheck g d (LetBang u (Bang ty) t') = do
-  (n,t) <- unbind t'
+typeCheck g d (LetBang u (ty@(Bang a)) t') = do
+  (x,t) <- unbind t'
   d1 <- disjointCtx d u
-  d2 <- disjointCtx d t
-  g2 <- disjointCtx g t
-  tyu <- typeCheck g d1 u
+  d2 <- disjointCtx d t 
+  tyu <- typeCheck g d1 u  
   case tyu of
-    (Bang ty) -> (typeCheck g2 d2 t) >>= (\tyt -> return tyt)
+    (Bang a') ->
+        if a' == a
+        then typeCheck ((x,ty) |:| g) d2 t
+        else throwError InvalidTypeException
     _ -> throwError InvalidTypeException
 typeCheck g d (LetBang u _ t') = throwError InvalidTypeException 
-typeCheck g d (Lam ty t) = do
-  (n,t') <- unbind t
-  d' <- disjointCtx d t'
-  ty2 <- typeCheck g d' t'
+typeCheck g d (Lam ty t') = do
+  (x,t) <- unbind t'
+  ty2 <- typeCheck g ((x,ty) |:| d) t
   return $ Lolly ty ty2
 typeCheck g d (App u t) = do
   d1 <- disjointCtx d u
@@ -160,11 +171,12 @@ typeCheck g d (App u t) = do
   tyt <- typeCheck g d2 t
   case tyu of
    (Lolly a b) -> if (tyt == a)
-                  then return tyt
+                  then return b
                   else throwError AppSrcException
    _ -> throwError AppSrcException
 ------------------------------------------------------------------------
 --                                                                    --
 ------------------------------------------------------------------------
-runTypeChecker :: Ctx -> Ctx -> Term -> Either TypeError Type
-runTypeChecker c1 c2 term = runFreshM.runExceptT $ typeCheck c1 c2 term
+constructType :: Term -> Either TypeError Type
+constructType term =
+    runFreshM.runExceptT $ typeCheck emptyCtx emptyCtx term

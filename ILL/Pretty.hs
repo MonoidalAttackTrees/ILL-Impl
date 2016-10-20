@@ -9,6 +9,7 @@ import Data.Char
 import Text.Parsec
 import Unbound.LocallyNameless 
 import Unbound.LocallyNameless.Alpha
+import Control.Monad.Except
 
 import Syntax
 import Parser 
@@ -16,23 +17,25 @@ import Parser
 ------------------------------------------------------------------------
 -- prettyType converts a type into a string.                          --
 ------------------------------------------------------------------------
-prettyType :: Fresh m => Type -> m String
+prettyType :: Fresh m => Type -> ExceptT TypeException m String
 prettyType I = return "I"
 prettyType (Lolly a b) = do
    a' <- prettyType a
    b' <- prettyType b
-   case a of
-      (Lolly _ _) -> return $ "(" ++ a' ++ ")" ++ " -o " ++ b'
-      _ -> return $ a' ++ " -o " ++ b'
+   return $ "(" ++ a' ++ ")" ++ " -o " ++ b'
 prettyType (Tensor a b) = do
    a' <- prettyType a
    b' <- prettyType b
    return $ a' ++ "(x)" ++ b'
+prettyType (Bang ty') = do
+  ty <- prettyType ty'
+  return $ "!" ++ ty
+prettyType _ = throwError InvalidTypeError
 
 ------------------------------------------------------------------------
 -- prettyTerm converts a term into a string.                          --
 ------------------------------------------------------------------------
-prettyTerm :: Fresh m => Term -> m String
+prettyTerm :: Fresh m => Term -> ExceptT TypeException m String
 prettyTerm Unit = do
    return "unit"
 prettyTerm (Var n) = do
@@ -95,14 +98,16 @@ testPretty parser pretty s = do
       Left e -> error $ show e
       Right r -> runFreshM (pretty r)
 
-testPrettyType :: String -> String
-testPrettyType = testPretty typeParser prettyType
+--TODO: Fix helper functions
+--testPrettyType :: String -> Either TypeException String
+--testPrettyType = testPretty typeParser prettyType
 
-testPrettyTerm :: String -> String
-testPrettyTerm = testPretty termParser prettyTerm
+--testPrettyTerm :: String -> Either TypeException String
+--testPrettyTerm = testPretty termParser prettyTerm
 
-runPrettyType :: Type -> String
-runPrettyType = runFreshM.prettyType
+--runPrettyType :: Type -> Either TypeException String
+--runPrettyType = runFreshM.prettyType
 
-runPrettyTerm :: Term -> String
-runPrettyTerm = runFreshM.prettyTerm
+--runPrettyTerm :: Term -> Either TypeException String
+--runPrettyTerm = runFreshM.prettyTerm
+--testPrettyType = runExceptT.runFreshM $ testPretty typeParser prettyType

@@ -22,7 +22,7 @@ lexer = haskellStyle {
   Token.reservedOpNames = ["(x)", "tens", "-o", "\\", ":s", ":show",
                            ":t", ":type", ":u", ":unfold", ":d", ":dump"] }
 
-tokenizer = Token.makeTokenParser lexer
+tokenizer  = Token.makeTokenParser lexer
 ident      = Token.identifier tokenizer
 reserved   = Token.reserved tokenizer
 reservedOp = Token.reservedOp tokenizer

@@ -8,17 +8,6 @@ import Data.List
 import Syntax
 import Pretty
 import Parser
-------------------------------------------------------------------------
--- TypeError handles error data & future error handling               --
-------------------------------------------------------------------------
-data TypeError =
-    NonEmptyCtxException
-  | EmptyCtxException
-  | TermNotInCtxException
-  | VarException
-  | AppSrcException
-  | InvalidArgException
-  | InvalidTypeException
 
 ------------------------------------------------------------------------
 -- Typing contexts                                                    --
@@ -79,6 +68,7 @@ fv (LetBang t ty b) = do
 fv (BangT t) = do
    t' <- fv t
    return t'
+
 ------------------------------------------------------------------------
 -- Splitting linear contexts. Takes list of free variables and a      --
 -- context, creating the subcontext that contains those free variables--
@@ -88,26 +78,28 @@ subCtx n [] = Just emptyCtx
 subCtx (n:ns) c = do
   ty <- lookup n c
   (subCtx ns c) >>= (\ctx' -> return ((n,ty):ctx'))
+
 ------------------------------------------------------------------------
 -- Create disjoint sub-contexts from gamma and delta                  --
 ------------------------------------------------------------------------
-disjointCtx :: Fresh m => Ctx -> Term -> ExceptT TypeError m Ctx
-disjointCtx ctx tm = do
+extractCtx :: Fresh m => Ctx -> Term -> ExceptT TypeException m Ctx
+extractCtx ctx tm = do
   tms <- fv tm
   let mctx' = subCtx tms ctx
    in case mctx' of
         Just ctx' -> return ctx'
-        Nothing -> throwError TermNotInCtxException
+        Nothing -> throwError InvalidContextError
+
 ------------------------------------------------------------------------
 -- Type checking algorithm                                            --
 -- g (GAMMA) denotes intuitionistic context                           --
 -- d (DELTA) denotes linear context                                   --
 ------------------------------------------------------------------------
-typeCheck :: Fresh m => Ctx -> Ctx -> Term -> ExceptT TypeError m Type
+typeCheck :: Fresh m => Ctx -> Ctx -> Term -> ExceptT TypeException m Type
 typeCheck g [] Unit = return I
-typeCheck g _ Unit = throwError NonEmptyCtxException
+typeCheck g _ Unit = throwError NonEmptyCtxError
 typeCheck g [] (Var t) = do
-  ctx <- disjointCtx g $ Var t
+  ctx <- extractCtx g $ Var t
   case (lookup t ctx) of
     Nothing -> throwError VarException
     Just ty -> return ty
@@ -119,64 +111,64 @@ typeCheck _ [(x,ty)] (Var y) = do
 typeCheck c1 [] (BangT t) = do
   ty <- typeCheck c1 [] t
   return $ Bang ty
-typeCheck c1 _ (BangT t) = throwError NonEmptyCtxException
+typeCheck c1 _ (BangT t) = throwError NonEmptyCtxError
 typeCheck g d (Tens t u) = do
-  d1 <- disjointCtx d t
-  d2 <- disjointCtx d u
+  d1 <- extractCtx d t
+  d2 <- extractCtx d u
   ty1 <- typeCheck g d1 t
   ty2 <- typeCheck g d2 u
   return $ Tensor ty1 ty2
 typeCheck g d (LetU t u) = do
-  d1 <- disjointCtx d t
-  d2 <- disjointCtx d u
+  d1 <- extractCtx d t
+  d2 <- extractCtx d u
   ty1 <- typeCheck g d1 t
   ty2 <- typeCheck g d2 u
   if (ty1 == I)
     then return ty2
-    else throwError $ InvalidTypeException
+    else throwError $ InvalidTypeError
 typeCheck g d (LetT u (Tensor a b) t'') = do
   (x,t') <- unbind t''
   (y,t) <- unbind t'
-  d1 <- disjointCtx d u
-  d2 <- disjointCtx d t
+  d1 <- extractCtx d u
+  d2 <- extractCtx d t
   tyu <- typeCheck g d1 u
   tyt <- typeCheck g ((x,a) |:| (y,b) |:| d2) t
   case tyu of
     (Tensor a' b') ->
         if ((a',b') == (a,b))
         then return tyt
-        else throwError InvalidTypeException
-    _ -> throwError InvalidTypeException
-typeCheck g d (LetT u _ t) = throwError InvalidTypeException
+        else throwError InvalidTypeError
+    _ -> throwError InvalidTypeError
+typeCheck g d (LetT u _ t) = throwError InvalidTypeError
 typeCheck g d (LetBang u (ty@(Bang a)) t') = do
   (x,t) <- unbind t'
-  d1 <- disjointCtx d u
-  d2 <- disjointCtx d t 
+  d1 <- extractCtx d u
+  d2 <- extractCtx d t 
   tyu <- typeCheck g d1 u  
   case tyu of
     (Bang a') ->
         if a' == a
         then typeCheck ((x,ty) |:| g) d2 t
-        else throwError InvalidTypeException
-    _ -> throwError InvalidTypeException
-typeCheck g d (LetBang u _ t') = throwError InvalidTypeException 
+        else throwError InvalidTypeError
+    _ -> throwError InvalidTypeError
+typeCheck g d (LetBang u _ t') = throwError InvalidTypeError 
 typeCheck g d (Lam ty t') = do
   (x,t) <- unbind t'
   ty2 <- typeCheck g ((x,ty) |:| d) t
   return $ Lolly ty ty2
 typeCheck g d (App u t) = do
-  d1 <- disjointCtx d u
-  d2 <- disjointCtx d t
+  d1 <- extractCtx d u
+  d2 <- extractCtx d t
   tyu <- typeCheck g d1 u
   tyt <- typeCheck g d2 t
   case tyu of
    (Lolly a b) -> if (tyt == a)
                   then return b
-                  else throwError AppSrcException
-   _ -> throwError AppSrcException
+                  else throwError AppSrcError
+   _ -> throwError AppSrcError
 ------------------------------------------------------------------------
 --                                                                    --
 ------------------------------------------------------------------------
-constructType :: Term -> Either TypeError Type
+constructType :: Term -> Either TypeException Type
 constructType term =
     runFreshM.runExceptT $ typeCheck emptyCtx emptyCtx term

@@ -13,15 +13,7 @@
 module Queue where
 
 import Prelude hiding (lookup)
--- imports for testing
 import Syntax
-import Parser
-import Pretty
-import TypeCheck
--- remove imports after recursive lookup
-
--- redundant Qelm (found in Repl) for testing purposes
-type Qelm = (TmName, Term)
 
 data Queue a = Queue [a] [a]
 
@@ -59,7 +51,7 @@ lookup :: Eq a => Queue a -> a -> a
 lookup q a =
   case (lookup' q a) of
        Just x -> x
-       Nothing -> undefined
+       Nothing -> error ""
 
 lookup' :: Eq a => Queue a -> a -> Maybe a
 lookup' (Queue [] []) _ = Nothing

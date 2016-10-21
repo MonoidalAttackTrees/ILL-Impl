@@ -80,6 +80,6 @@ main = do
                      Just input | input == ":q" || input == ":quit" ->
                                   liftIO $ putStrLn "Exiting ILL." >> return ()
                                 | input == ":h" || input == ":help" ->
-                                  liftIO $ putStrLn helpDoc >> return ()
+                                  (lift.liftIO $ putStrLn helpDoc) >> loop
                                 | otherwise -> (lift.handleCMD $ input) >> loop
 

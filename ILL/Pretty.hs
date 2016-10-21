@@ -17,7 +17,7 @@ import Parser
 ------------------------------------------------------------------------
 -- prettyType converts a type into a string.                          --
 ------------------------------------------------------------------------
-prettyType :: Fresh m => Type -> ExceptT TypeException m String
+prettyType :: Fresh m => Type -> m String
 prettyType I = return "I"
 prettyType (Lolly a b) = do
    a' <- prettyType a
@@ -30,12 +30,11 @@ prettyType (Tensor a b) = do
 prettyType (Bang ty') = do
   ty <- prettyType ty'
   return $ "!" ++ ty
-prettyType _ = throwError InvalidTypeError
-
+  
 ------------------------------------------------------------------------
 -- prettyTerm converts a term into a string.                          --
 ------------------------------------------------------------------------
-prettyTerm :: Fresh m => Term -> ExceptT TypeException m String
+prettyTerm :: Fresh m => Term -> m String
 prettyTerm Unit = do
    return "unit"
 prettyTerm (Var n) = do
@@ -98,16 +97,14 @@ testPretty parser pretty s = do
       Left e -> error $ show e
       Right r -> runFreshM (pretty r)
 
---TODO: Fix helper functions
---testPrettyType :: String -> Either TypeException String
---testPrettyType = testPretty typeParser prettyType
+testPrettyType :: String -> String
+testPrettyType = testPretty typeParser prettyType
 
---testPrettyTerm :: String -> Either TypeException String
---testPrettyTerm = testPretty termParser prettyTerm
+testPrettyTerm :: String -> String
+testPrettyTerm = testPretty termParser prettyTerm
 
---runPrettyType :: Type -> Either TypeException String
---runPrettyType = runFreshM.prettyType
+runPrettyType :: Type -> String
+runPrettyType = runFreshM.prettyType
 
---runPrettyTerm :: Term -> Either TypeException String
---runPrettyTerm = runFreshM.prettyTerm
---testPrettyType = runExceptT.runFreshM $ testPretty typeParser prettyType
+runPrettyTerm :: Term -> String
+runPrettyTerm = runFreshM.prettyTerm

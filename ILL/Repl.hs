@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module Repl where
 
 import Control.Monad.State
@@ -6,6 +8,7 @@ import System.Console.Haskeline
 import System.Console.Haskeline.MonadException
 import System.Exit
 import Unbound.LocallyNameless.Subst
+import Data.List.Split
 
 import Syntax
 import Parser
@@ -63,11 +66,16 @@ banner = "Welcome to ILL, an Intuitionistic Linear Logic programming language!\n
 helpDoc :: String
 helpDoc =
  "\nCommands available for the ILL REPL\&:\n\n\
- \\&:u \&:unfold -> Unfold and print definitions in queue.\n\
+ \\&:u \&:unfold        -> Unfold and print definitions in queue.\n\
  \\&:s \&:show <term>   -> Print the abstract syntax of a term.\n\
- \\&:d \&:dump   -> Print contents of REPL queue.\n\
- \\&:h \&:help   -> Display this help document.\n"
+ \\&:d \&:dump          -> Print contents of REPL queue.\n\
+ \\&:h \&:help          -> Display this help document.\n"
 
+--unfold :: Term -> REPLStateIO ()
+unfold t = do
+  defs <- get
+  return $ unfoldDefsInTerm defs t
+  
 main = do
     putStr banner
     evalStateT (runInputT defaultSettings loop) emptyQ
@@ -80,6 +88,9 @@ main = do
                      Just input | input == ":q" || input == ":quit" ->
                                   liftIO $ putStrLn "Exiting ILL." >> return ()
                                 | input == ":h" || input == ":help" ->
-                                  (lift.liftIO $ putStrLn helpDoc) >> loop
+                                  (liftIO $ putStrLn helpDoc) >> loop
+                                | i == ":t " -> (lift.handleCMD $ drop 3 input) >> loop
+                                | j == ":type " -> (lift.handleCMD $ drop 6 input) >> loop
                                 | otherwise -> (lift.handleCMD $ input) >> loop
-
+                       where i = (take (length ":t ") input)
+                             j = (take (length ":type ") input)

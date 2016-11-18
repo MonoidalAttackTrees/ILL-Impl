@@ -71,10 +71,18 @@ helpDoc =
  \\&:d \&:dump          -> Print contents of REPL queue.\n\
  \\&:h \&:help          -> Display this help document.\n"
 
---unfold :: Term -> REPLStateIO ()
-unfold t = do
-  defs <- get
-  return $ unfoldDefsInTerm defs t
+--unfolder :: Fresh m => String -> m String
+--unfolder str = do
+  --return $ prettyUnfold $ unfoldTerm $ parseTerm str
+
+--unfoldTerm :: Fresh m => Term -> m Term
+--unfoldTerm t = do
+  --defs <- get
+  --return $ unfoldDefsInTerm defs t
+unfoldTerm t = get >>= (\defs -> runPrettyTerm $ unfoldDefsInTerm defs t)
+
+prettyUnfold :: Fresh m => m Term -> [Char]
+prettyUnfold t = runPrettyTerm t
   
 main = do
     putStr banner
@@ -89,6 +97,7 @@ main = do
                                   liftIO $ putStrLn "Exiting ILL." >> return ()
                                 | input == ":h" || input == ":help" ->
                                   (liftIO $ putStrLn helpDoc) >> loop
+                                | i == ":t " -> (liftIO $ unfoldTerm $ parseTerm $ drop 3 input) >> loop
                                 | i == ":t " -> (lift.handleCMD $ drop 3 input) >> loop
                                 | j == ":type " -> (lift.handleCMD $ drop 6 input) >> loop
                                 | otherwise -> (lift.handleCMD $ input) >> loop

@@ -19,6 +19,7 @@ import Prelude
 import Data.List
 import Unbound.LocallyNameless hiding (fv)
 import Unbound.LocallyNameless.Alpha
+import Errors
 
 data Type =
     I 
@@ -60,16 +61,3 @@ replaceTest n t t' = return $ replace n t t'
 
 n2s :: Name a -> String
 n2s = name2String
-
-------------------------------------------------------------------------
--- TypeException handles error data & handling                        --
-------------------------------------------------------------------------
-
-data TypeException =
-    NonEmptyCtxError
-  | EmptyCtxError
-  | InvalidContextError
-  | VarException
-  | AppSrcError
-  | InvalidArgError
-  | InvalidTypeError

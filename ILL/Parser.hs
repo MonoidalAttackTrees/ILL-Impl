@@ -187,6 +187,7 @@ data REPLExpr =
  | ShowAST Term
  | DumpState
  | Unfold Term
+ | ReplType Term
  deriving Show
 
 letParser = do
@@ -220,13 +221,25 @@ replIntCmdParser short long c = do
   then return c
   else fail $ "Command \":"++cmd++"\" is unrecognized."
 
+replTypeCmdParser short long c p = do
+  colon
+  cmd <- many lower
+  ws
+  t <- p
+  eof
+  if (cmd == long || cmd == short)
+  then return $ c t
+  else fail $ "Command \":" ++ cmd ++ "\" is unrecognized."
+
 showASTParser = replTermCmdParser "s" "show" ShowAST termParser
 
 unfoldTermParser = replTermCmdParser "u" "unfold" Unfold termParser         
 
 dumpStateParser = replIntCmdParser "d" "dump" DumpState
 
-lineParser = letParser <|> try showASTParser <|> try unfoldTermParser <|> try dumpStateParser <|> try callTermParser 
+replTypeParser = replTypeCmdParser "t" "type" ReplType termParser
+
+lineParser = letParser <|> try showASTParser <|> try unfoldTermParser <|> try dumpStateParser <|> try replTypeParser <|> try callTermParser
 
 parseLine :: String -> Either String REPLExpr
 parseLine s = case (parse lineParser "" s) of

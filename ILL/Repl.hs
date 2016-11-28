@@ -14,6 +14,7 @@ import Syntax
 import Parser
 import Pretty
 import Queue
+import TypeCheck
 
 type Qelm = (TmName, Term)
 type REPLStateIO = StateT (Queue Qelm) IO
@@ -45,6 +46,25 @@ unfoldQueue q = fixQ q emptyQ step
       substDef :: Name Term -> Term -> Qelm -> Qelm
       substDef x t (y, t') = (y, subst x t t')
 
+searchTerm :: (Queue Qelm) -> TmName -> Term
+searchTerm q tmn =
+    case (searchTerm' q tmn) of
+     -- Left lf -> Var (s2n lf) -- temporary solution for error handling
+      Left lf -> error "Error, not in queue(2)." -- exception
+      Right rt -> rt
+
+searchTerm' :: (Queue Qelm) -> TmName -> Either String Term
+searchTerm' q tmn =
+   case (Prelude.lookup tmn l) of
+   Just x -> Right x
+   Nothing -> Left "Error, not in queue." 
+   where
+     l = toListQ $ unfoldQueue q
+
+retrieveType :: Either TypeException Type -> Type
+retrieveType (Right r) = r
+retrieveType _ = undefined -- handle some errors
+
 handleCMD :: String -> REPLStateIO()
 handleCMD "" = return ()
 handleCMD s =
@@ -55,7 +75,13 @@ handleCMD s =
     handleLine :: REPLExpr -> REPLStateIO()
     handleLine (Let x t) = push (x,t)
     handleLine (ShowAST t) = io.putStrLn.show $ t
-    handleLine (Unfold t) = get >>= (\defs -> io.putStrLn.runPrettyTerm $ unfoldDefsInTerm defs t)
+    handleLine (Unfold t) = get >>= (
+      \defs -> io.putStrLn.runPrettyTerm $ unfoldDefsInTerm defs t)
+    handleLine (ReplType t) = get >>= (
+      \defs -> io.putStrLn.runPrettyType $ retrieveType $
+               constructType $ unfoldDefsInTerm defs t)
+    handleLine (CallTerm t) = get >>= (
+      \q -> io.putStrLn.runPrettyTerm $ searchTerm q t)
     handleLine DumpState = get >>= io.print.(mapQ prettyDef)
       where
         prettyDef (x, t) = "let " ++ (n2s x) ++ " = " ++ (runPrettyTerm t)
@@ -70,19 +96,6 @@ helpDoc =
  \\&:s \&:show <term>   -> Print the abstract syntax of a term.\n\
  \\&:d \&:dump          -> Print contents of REPL queue.\n\
  \\&:h \&:help          -> Display this help document.\n"
-
---unfolder :: Fresh m => String -> m String
---unfolder str = do
-  --return $ prettyUnfold $ unfoldTerm $ parseTerm str
-
---unfoldTerm :: Fresh m => Term -> m Term
---unfoldTerm t = do
-  --defs <- get
-  --return $ unfoldDefsInTerm defs t
-unfoldTerm t = get >>= (\defs -> runPrettyTerm $ unfoldDefsInTerm defs t)
-
-prettyUnfold :: Fresh m => m Term -> [Char]
-prettyUnfold t = runPrettyTerm t
   
 main = do
     putStr banner
@@ -97,9 +110,4 @@ main = do
                                   liftIO $ putStrLn "Exiting ILL." >> return ()
                                 | input == ":h" || input == ":help" ->
                                   (liftIO $ putStrLn helpDoc) >> loop
-                                | i == ":t " -> (liftIO $ unfoldTerm $ parseTerm $ drop 3 input) >> loop
-                                | i == ":t " -> (lift.handleCMD $ drop 3 input) >> loop
-                                | j == ":type " -> (lift.handleCMD $ drop 6 input) >> loop
                                 | otherwise -> (lift.handleCMD $ input) >> loop
-                       where i = (take (length ":t ") input)
-                             j = (take (length ":type ") input)
